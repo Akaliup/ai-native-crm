@@ -16,14 +16,17 @@ const REPROVARAM_NO_FIM_DA_SUITE = [
 describe("pnpm cercas — quem entra", () => {
   const selecionadas = selecionarCercas(process.cwd());
 
+  it("usa caminhos de glob portáveis também no Windows", () => {
+    expect(selecionadas.length).toBeGreaterThan(0);
+    expect(selecionadas.every((arquivo) => !arquivo.includes("\\"))).toBe(true);
+  });
+
   it("as guardas que reprovaram no fim da suíte longa estão na seleção", () => {
     expect(REPROVARAM_NO_FIM_DA_SUITE.filter((f) => !selecionadas.includes(f))).toEqual([]);
   });
 
   it("nenhuma suíte de outro runner entra", () => {
-    expect(
-      selecionadas.filter((f) => /^tests\/(e2e|invariants|journeys)\//.test(f)),
-    ).toEqual([]);
+    expect(selecionadas.filter((f) => /^tests\/(e2e|invariants|journeys)\//.test(f))).toEqual([]);
   });
 
   // Controle negativo: sem ele, um classificador que aceitasse tudo passaria

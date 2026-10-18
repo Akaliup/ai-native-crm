@@ -613,6 +613,8 @@ jobs:
     #     contra um corte conhecido (job 105911210567, do #1294) e ver 1.
     env:
       # Provider controlado; preview/assistência executam core, ferramentas e gates reais.
+      # Run 39079651335: typecheck do build excedeu o heap padrão de ~2 GiB.
+      NODE_OPTIONS: "--max-old-space-size=4096"
       INTERNAL_AGENT_RUN_STUB: "true"
       # Única exceção HTTP do laboratório de extensões. O servidor é iniciado
       # pela própria spec, em loopback, com SQLite e PID exclusivos.
