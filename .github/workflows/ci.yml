@@ -77,6 +77,9 @@ jobs:
   # o teto volta de 25 para 15 (guarda de travamento) e o orçamento desce de 16
   # para 12 — quem denuncia a suíte crescendo é o orçamento, por parte.
   verify-parte:
+    env:
+      # O mesmo compilador também é executado por `pnpm typecheck` nesta matrix.
+      NODE_OPTIONS: "--max-old-space-size=4096"
     # Guarda de travamento. O DETECTOR de crescimento é o passo `Orçamento de
     # tempo` no fim de cada parte; a medição que justifica o número está em
     # `TETOS`, em tests/unit/preambulo-do-ci-nao-come-o-relogio.test.ts.

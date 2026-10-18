@@ -13,7 +13,7 @@ describe("recursos do CI após importação do snapshot", () => {
     expect(ci).toContain('ORCAMENTO_MIN: "12"');
   });
 
-  it.each(["perf", "e2e"])("%s dá heap ao typecheck sem desligá-lo", (nome) => {
+  it.each(["perf", "e2e", "ci"])("%s dá heap ao typecheck sem desligá-lo", (nome) => {
     const workflow = ler(nome);
     expect(workflow).toContain('NODE_OPTIONS: "--max-old-space-size=4096"');
     expect(workflow).not.toContain("TSC_COMPILE_ON_ERROR");
