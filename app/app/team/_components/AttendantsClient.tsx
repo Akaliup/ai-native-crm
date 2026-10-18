@@ -248,7 +248,7 @@ function ScheduleDialog({
                     )
                   }
                 >
-                  <SelectTrigger className="w-[90px]" aria-label="Dia da semana">
+                  <SelectTrigger className="w-[90px]" aria-label={t("Dia da semana")}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -273,7 +273,7 @@ function ScheduleDialog({
                 <Input
                   type="time"
                   value={w.end}
-                  aria-label="Fim"
+                  aria-label={t("Fim")}
                   onChange={(e) =>
                     setWindows((ws) =>
                       ws.map((x, j) => (j === i ? { ...x, end: e.target.value } : x)),
@@ -283,7 +283,7 @@ function ScheduleDialog({
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label="Remover janela"
+                  aria-label={t("Remover janela")}
                   onClick={() => setWindows((ws) => ws.filter((_, j) => j !== i))}
                 >
                   <Trash size={18} />
@@ -371,7 +371,7 @@ function RoutingCard({ canManage }: { canManage: boolean }) {
               disabled={!canManage}
               onValueChange={(v) => set({ mode: v as RoutingConfig["mode"] })}
             >
-              <SelectTrigger aria-label="Modo de roteamento">
+              <SelectTrigger aria-label={t("Modo de roteamento")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

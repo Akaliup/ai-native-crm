@@ -138,7 +138,7 @@ export function ContactPickerDialog({
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por nome ou telefone…"
+            placeholder={t("Buscar por nome ou telefone…")}
             className="pl-8"
             autoFocus
           />

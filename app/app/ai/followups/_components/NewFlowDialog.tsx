@@ -71,7 +71,7 @@ export function NewFlowDialog({ open, onOpenChange }: Props) {
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="flow-name">{t("Nome")}</Label>
+            <Label htmlFor="flow-name">{t("Nome do fluxo")}</Label>
             <Input
               id="flow-name"
               value={name}

@@ -188,7 +188,7 @@ function SendWhatsappForm({
           rows={4}
           value={config.template}
           onChange={(e) => onChange({ ...config, template: e.target.value })}
-          placeholder="Oi {{nome}}, tudo bem?"
+          placeholder={t("Oi {{nome}}, tudo bem?")}
         />
         <p className="text-xs text-muted-foreground">
           {/* NÃO cravar "7h e 22h": a janela passou a vir dos ajustes DO NÚMERO
