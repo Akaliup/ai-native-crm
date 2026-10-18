@@ -116,6 +116,10 @@ CRM 产品层通过自有接口调用运行内核；Pi 类型封装在适配层�
 
 ## 快速开始
 
+### 内置操作指南
+
+在 Codex 中输入 `$pi-native-instalar`，可调用仓库附带的安装与排障指南。指南源码位于 `.agents/skills/pi-native-instalar/`，其他支持该技能格式的工具也可读取。它提供操作指导，不代表数据库和第三方服务已经配置完成。
+
 ### 本地开发
 
 准备 Node.js 22+、pnpm，以及开发用 Supabase 和 Redis 配置。

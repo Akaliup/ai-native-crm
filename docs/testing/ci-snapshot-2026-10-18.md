@@ -13,6 +13,8 @@
 
 修复分支运行 39106559018 的第四个单测分片进一步暴露 `branding.test.ts` 的 `spawnSync rg ENOENT`。该测试改为使用已有 Git 依赖列举受版本控制及未忽略的文件，NUL 分隔保留特殊文件名，继续执行原命名检查。
 
+同轮第二分片的 296 个单测文件、2,899 项通过，后续 shell 检查发现 README 缺少 `$pi-native-instalar` 操作指南入口。README 已补齐真实入口；Windows Git Bash 下对应 README 用例通过，整套指南安装测试仍有 9 个环境相关失败，未宣称整套 shell 验证通过。
+
 原始 CI 中 Postgres 15、17 的数据库不变量检查均通过。该结果只属于原始提交。
 
 ## 本地发现的额外问题
