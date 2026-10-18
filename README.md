@@ -1,6 +1,16 @@
-# Pi Native CRM
+# AI Native CRM
 
-[面试演示、源码入口与 GitHub 上传指引](docs/INTERVIEW-DEMO.zh-CN.md)
+基于开源 [helsome/AiNativeCrm](https://github.com/helsome/AiNativeCrm) 的学习与二次开发仓库，保留原项目 MIT 许可证及版权声明。当前 Git 历史从源码快照导入开始，不代表整个项目的原始开发历史。
+
+## 本仓库的改动与验证范围
+
+- 执行证据概览：在现有工作台展示任务配置作用域、审批、来源、评测和下一步，待对账状态优先于模型建议。
+- 回归测试：覆盖空态、对账优先级、评测读取失败及详情入口。
+- CI 可移植性：针对 GitHub Actions 日志中的源码扫描依赖、构建堆内存不足和单测超时修复执行配置。修复结果以对应提交的 Actions 为准。
+
+MCP、Pi runtime、Worker、数据库及现有业务模块来自项目基座；文件存在不代表本仓库作者独立实现了这些能力。本次增量由 AI 辅助完成，具体文件和范围见[演示与开发说明](docs/INTERVIEW-DEMO.zh-CN.md)。
+
+本地已通过类型检查及相关组件测试，不代表完整业务链路或 GitHub CI 全部通过。历史验证报告保留其原始日期和范围，不作为当前版本的验收结论。[查看当前 Actions](https://github.com/Akaliup/ai-native-crm/actions)
 
 以真实 CRM 为状态空间的 Agent 原生工作台。
 
@@ -10,9 +20,9 @@
 
 > CRM 保存业务事实，Pi 驱动 Agent 行动，Harness 管理执行边界。
 
-## 我们的产品
+## 项目基座能力
 
-Pi Native CRM 是一个内部研发的 Agent-native CRM 工作台。联系人、会话、商机、跟进任务和知识库构成 Agent 的工作环境；自然语言目标成为执行入口。
+项目基座是一个 Agent-native CRM 工作台。联系人、会话、商机、跟进任务和知识库构成 Agent 的工作环境；自然语言目标成为执行入口。
 
 我们关注的不只是生成一段回复，而是完整的业务动作：理解上下文、寻找证据、拆解任务、协同调查、调用工具、观察结果，再决定下一步。CRM 的价值在于提供真实对象、业务约束和可核验的状态变化。
 
@@ -106,13 +116,17 @@ CRM 产品层通过自有接口调用运行内核；Pi 类型封装在适配层�
 
 ## 快速开始
 
+### 内置操作指南
+
+在 Codex 中输入 `$pi-native-instalar`，可调用仓库附带的安装与排障指南。指南源码位于 `.agents/skills/pi-native-instalar/`，其他支持该技能格式的工具也可读取。它提供操作指导，不代表数据库和第三方服务已经配置完成。
+
 ### 本地开发
 
 准备 Node.js 22+、pnpm，以及开发用 Supabase 和 Redis 配置。
 
 ```bash
-git clone https://github.com/helsome/AiNativeCrm.git
-cd AiNativeCrm
+git clone https://github.com/Akaliup/ai-native-crm.git
+cd ai-native-crm
 pnpm install --frozen-lockfile
 
 # 仅在配置文件不存在时创建，保留已有配置
@@ -166,7 +180,7 @@ node scripts/serve-agent-demo.mjs
 
 ## 项目状态
 
-当前为内部研发版本，主分支围绕 Agent 工作台、受控 CRM 工具、多 Agent 协作、商机 Mission、知识记忆和 Eval 持续迭代。
+以下为源码快照中保留的历史研发记录，不是本仓库当前提交的全量验证，也不代表本仓库作者的个人交付。
 
 - **真实运行记录**：已沉淀真实模型、多 Agent、Mem0 / WeKnora / Langfuse 联调与脱敏回放。[查看运行记录](docs/testing/agent-services-real-run-2026-10-03.md) · [查看三服务联调](docs/testing/local-agent-services-connected-2026-10-03.md)
 - **系统复验记录**：2026-10-03 完成单元测试、数据库不变量、关键浏览器场景及真实模型复验。[查看复验报告](docs/testing/system-acceptance-fixes-2026-10-03.md)

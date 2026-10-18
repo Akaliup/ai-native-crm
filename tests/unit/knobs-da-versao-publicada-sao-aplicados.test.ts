@@ -26,8 +26,7 @@
  * controle positivo — instrumento que não acha nada devolve verde igual a
  * instrumento que não achou problema.
  */
-import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -54,25 +53,33 @@ function camposDaConfig(): string[] {
   return [...src.slice(ini, fim).matchAll(/^ {2}(\w+)\??:/gm)].map((m) => m[1]!);
 }
 
+// Node faz a leitura: `rg` não é dependência do projeto nem do runner.
+// Falhas de leitura devem reprovar, nunca virar uma lista vazia de consumidores.
+function fontes(dir: string): Array<{ arquivo: string; texto: string }> {
+  return readdirSync(path.join(RAIZ, dir), { withFileTypes: true }).flatMap((entry) => {
+    const arquivo = path.join(dir, entry.name);
+    if (entry.isDirectory()) return fontes(arquivo);
+    if (!entry.isFile() || !/\.tsx?$/.test(entry.name) || entry.name.includes("agent-config"))
+      return [];
+    return [{ arquivo, texto: readFileSync(path.join(RAIZ, arquivo), "utf8") }];
+  });
+}
+const FONTES = ["lib", "workers", "app"].flatMap(fontes);
+
 /** Arquivos que leem o campo, fora do próprio módulo que o carrega. */
 function consumidoresDe(campo: string): string[] {
-  try {
-    const saida = execFileSync(
-      "rg",
-      ["-l", "-F", "-e", `agentConfig.${campo}`, "-e", `agentConfig?.${campo}`, "--glob", "*.ts", "--glob", "*.tsx", "lib", "workers", "app"],
-      { cwd: RAIZ, encoding: "utf8" },
-    );
-    return saida.split("\n").filter((f) => f !== "" && !f.includes("agent-config"));
-  } catch {
-    // `rg` sai com 1 quando não encontra nada — ausência, não falha.
-    return [];
-  }
+  return FONTES.filter(
+    ({ texto }) =>
+      texto.includes(`agentConfig.${campo}`) || texto.includes(`agentConfig?.${campo}`),
+  ).map(({ arquivo }) => arquivo);
 }
 
 describe("knobs da versão publicada", () => {
   it("o instrumento enxerga (controle positivo)", () => {
     const campos = camposDaConfig();
-    expect(campos.length, "a interface da config veio vazia — o parser quebrou").toBeGreaterThan(15);
+    expect(campos.length, "a interface da config veio vazia — o parser quebrou").toBeGreaterThan(
+      15,
+    );
     expect(campos).toContain("systemPrompt");
     expect(
       consumidoresDe("systemPrompt").length,
