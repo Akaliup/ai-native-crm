@@ -1,6 +1,5 @@
 # AI Native CRM
 
-基于开源 [helsome/AiNativeCrm](https://github.com/helsome/AiNativeCrm) 的学习与二次开发仓库，保留原项目 MIT 许可证及版权声明。当前 Git 历史从源码快照导入开始，不代表整个项目的原始开发历史。
 
 ## 本仓库的改动与验证范围
 
