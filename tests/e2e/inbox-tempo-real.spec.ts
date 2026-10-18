@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * A MENSAGEM NOVA APARECE SEM O F5 — provado pela tela, que é o que o usuário faz.
  *
@@ -129,7 +130,7 @@ async function login(page: Page, email: string, senha: string): Promise<void> {
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(senha);
   await page.getByRole("button", { name: /entrar/i }).click();
-  await page.waitForURL(/\/app\//);
+  await page.waitForURL(isAppUrl);
 }
 
 /**

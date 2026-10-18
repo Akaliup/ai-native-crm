@@ -240,7 +240,7 @@ export function NovoMaterialDialog({ aberto, onFechar, onCriado, podeIndexar }: 
               />
               {ePerguntaEResposta(tipo) ? (
                 <p className="text-xs text-text-muted">
-                  {t("Uma linha")} <code>## Pergunta:</code> {t("e uma")} <code>## Resposta:</code>{" "}
+                  {t("Uma linha")} <code>{t("## Pergunta:")}</code> {t("e uma")} <code>{t("## Resposta:")}</code>{" "}
                   {t("por item, separados por uma linha em branco.")}
                 </p>
               ) : null}

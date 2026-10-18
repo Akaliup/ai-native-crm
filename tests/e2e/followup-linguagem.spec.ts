@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * W2-LINGUAGEM — a tela do construtor de follow-up não fala mais em código.
  *
@@ -47,7 +48,7 @@ async function login(page: Page, email: string, senha: string): Promise<void> {
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(senha);
   await page.getByRole("button", { name: /entrar/i }).click();
-  await page.waitForURL(/\/app\//, { timeout: PRAZO_SOB_CARGA });
+  await page.waitForURL(isAppUrl, { timeout: PRAZO_SOB_CARGA });
 }
 
 /**

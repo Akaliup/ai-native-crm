@@ -527,7 +527,7 @@ export function TiposDeAgendamentoClient({
               <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-text-muted">
                 {t(rotuloDe(CATEGORIAS, tipo.category))}
               </span>
-              <span className="text-xs tabular-nums text-text-muted">{tipo.duration_minutes} min</span>
+              <span className="text-xs tabular-nums text-text-muted">{tipo.duration_minutes} {t("min")}</span>
               <span className="text-xs text-text-muted">{t(rotuloDe(LOCAIS, tipo.location_kind))}</span>
               {!tipo.default_owner_user_id ? (
                 // O aviso existe porque o sintoma é MUDO: sem dono, a tela de
@@ -569,7 +569,7 @@ export function TiposDeAgendamentoClient({
                   {[tipo.reminder_minutes_before, ...(tipo.reminder_extra_offsets_minutes ?? [])]
                     .sort((a, b) => b - a)
                     .join(", ")}{" "}
-                  min {t("antes")}
+                  {t("min")} {t("antes")}
                   {tipo.reminder_body ||
                   Object.keys(tipo.reminder_bodies ?? {}).length > 0
                     ? ` · ${t("texto próprio")}`
@@ -600,7 +600,7 @@ export function TiposDeAgendamentoClient({
                         )
                       }
                     >
-                      Desativar
+                      {t("Desativar")}
                     </Button>
                   ) : (
                     <Button
@@ -623,7 +623,7 @@ export function TiposDeAgendamentoClient({
                         )
                       }
                     >
-                      Reativar
+                      {t("Reativar")}
                     </Button>
                   )}
                 </span>
@@ -697,7 +697,7 @@ export function TiposDeAgendamentoClient({
               >
                 <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_8rem_minmax(0,18rem)]">
                   <label className="flex flex-col gap-1 text-xs text-text-muted">
-                    Nome
+                    {t("Nome")}
                     <input
                       name="name"
                       defaultValue={tipo.name}

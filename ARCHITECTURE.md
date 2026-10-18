@@ -1,100 +1,72 @@
-# Architecture — Pi Native CRM
+# 架构说明
 
-> Visão de 1 página. Profundidade vive em `docs/specs/` e `docs/stories/epics/MASTER.md`.
-> Mapa de toda a documentação: [`docs/index.md`](docs/index.md).
-> Estado real de implementação (o que está pronto vs. incompleto): [`docs/current-state.md`](docs/current-state.md).
+本项目基于开源 Pi Native CRM。本文介绍现有系统边界；文件存在不等于当前环境已经完成部署或联调。开发约定以 [CLAUDE.md](CLAUDE.md) 为准，文档入口见 [docs/index.md](docs/index.md)。
 
-## Camadas
+## 系统分层
 
-- **App (Next.js 16 App Router)**: UI + Route Handlers no mesmo repo. Server Components por default, Client onde precisa de estado. Middleware de borda em `proxy.ts` (Next 16 renomeou `middleware.ts` → `proxy.ts`).
-- **DB (Supabase Postgres)**: RLS em toda tabela tenant-aware via `fn_user_org_ids()`. Migrations versionadas em `supabase/migrations/`.
-- **Auth (Supabase Auth + `@supabase/ssr`)**: cookie SameSite=Strict. Sempre `getUser()` no server, nunca `getSession()`. **MFA TOTP é opcional e ligado por quem administra** — duas políticas independentes que somam (`platform_admins.mfa_required` e `organizations.settings.security.mfa_required`), ambas com padrão **não exigir**; regra pura em `lib/auth/politica-mfa.ts`. Esta linha dizia "forçado pra admin/super-admin", que era a regra antiga: como o `install.sh` cria o dono como platform admin, toda instalação self-host recebia um bloqueador de tela cheia logo após o onboarding. Cadastrar e provar são coisas diferentes — quem TEM fator prova na sessão sempre, independente da política.
-- **Realtime (Supabase Realtime)**: `postgres_changes` para inbox/kanban; `broadcast` para sinais leves.
-- **Storage (Supabase Storage)**: bucket `whatsapp-media` privado, URLs assinadas.
-- **WhatsApp (WAHA Plus / engine NOWEB)**: HMAC-SHA512 webhooks; throttle anti-banimento; STOP detection.
-- **Filas (event sourcing leve)**: `event_log` table + workers via cron. Trigger Postgres NUNCA faz HTTP.
-- **Rate limit (Upstash Redis)**: contador de **janela fixa** (`INCR` + `EXPIRE`) em `lib/ai/dispatcher/rate-limit.ts`, com fallback in-memory quando Redis falta. ⚠️ Aplicado hoje em apenas 2 pontos (webhook de captação e dispatcher de IA) — o surface público de auth está sem. Ver [`docs/threat-model.md`](docs/threat-model.md) §T1.
-- **AI/agentes**: Pi Agent Core é o kernel canônico do loop de agentes; o Model Gateway do CRM resolve provider, credencial, binding, budget, pricing, usage e audit. O Vercel AI SDK permanece apenas em embeddings e chamadas auxiliares não-agenticas.
-- **Observability (Sentry)**: `beforeSend` scrubs PII (CPF/email/phone) e headers sensíveis.
+| 层 | 职责 | 主要入口 |
+| --- | --- | --- |
+| Web 应用 | Next.js App Router 页面和 Route Handlers；默认使用 Server Components，交互部分使用 Client Components | `app/`、`components/` |
+| 身份与组织 | Supabase Auth、组织成员关系、角色、可选 MFA | `lib/auth/`、`proxy.ts` |
+| 数据库 | Postgres 保存客户事实、执行状态和审计；组织数据受 RLS 约束 | `lib/supabase/`、`supabase/` |
+| Agent 内核 | Pi 驱动模型与工具循环，适配层隔离供应商类型 | `lib/agent-runtime/` |
+| 业务执行约束 | 限定客户作用域、工具效果、审批、预算与结果提交 | `lib/ai/agents/` |
+| 持久任务 | SQL 队列、领取身份、重试、恢复和取消；数据库 trigger 不直接发送 HTTP | `lib/agent-engine/queue/`、`workers/` |
+| 工具接口 | 外部 MCP 与内部运行时复用领域 handler | `app/api/mcp/`、`lib/mcp/` |
+| 知识与评测 | RAG、确认记忆、来源核验、语义评价与回归样例 | `lib/ai/` |
 
-## Multi-tenancy
+Model Gateway 负责模型供应商、组织凭据、模型绑定、预算、价格、用量和审计。Vercel AI SDK 用于 embeddings 和辅助调用；Agent 循环的规范内核是 Pi。
 
-`organization_id uuid not null` em toda tabela tenant-aware. RLS via helper. Service role bypassa RLS — handlers admin **DEVEM** filtrar `organization_id` manualmente, resolvido de fonte confiável (cookie/JWT/webhook secret/path token), nunca do body.
+## 认证请求如何流转
 
-Detalhes: [`docs/specs/01-spec-platform-base.md`](docs/specs/01-spec-platform-base.md).
-
-## API REST `/api/v1/`
-
-- JSON snake_case. UUID v4. ISO-8601 UTC. Dinheiro `_cents` + `currency`.
-- Wrappers `ok()` / `fail()` em `lib/api/wrappers.ts`.
-- Auth dual: cookie session (frontend) ou `Authorization: Bearer tok_...` (server-to-server).
-- `X-Request-Id` em toda response, injetado em `proxy.ts` e correlacionado com o audit log.
-- `Idempotency-Key` é o contrato para POSTs de criação; duas rotas gravam recibo (`lgpd/requests/[id]/approve` e `admin/tenants`) e existe o helper reutilizável `lib/api/idempotency.ts`, aplicado em `message-templates`. Ainda **não** cobre as demais rotas de criação, e não fecha a corrida entre requisições simultâneas com a mesma chave (exige mudança de schema — issue #778). Meça em vez de citar: `grep -rln 'Idempotency-Key' app/api/v1 --include='route.ts'`.
-- Detalhes: [`docs/specs/01-spec-platform-base.md`](docs/specs/01-spec-platform-base.md) §API.
-
-## Fluxo de uma requisição
-
-**Rota autenticada de tenant** (`/api/v1/*`, 166 handlers):
-
-```
-request → proxy.ts (X-Request-Id, x-pathname; isPublicPath? → bypass;
-                    senão valida sessão Supabase via cookie de compatibilidade sb-pi-native-auth)
-        → route handler:
-             1. Zod valida o input externo
-             2. guard: requireRole() | requirePlatformAdmin() | secret/HMAC
-             3. resolveActiveOrg() → organization_id de fonte confiável (nunca do body)
-             4. query (RLS pelo client de sessão, ou filtro manual de org com service role)
-             5. audit() fire-and-forget se houve mutação
-             6. ok(data, meta) | fail(code, message, status)
+```text
+request
+  → proxy.ts：请求关联标识、会话与公开路径判断
+  → Zod：验证 body、query、path
+  → requireRole / requirePlatformAdmin / secret / HMAC
+  → 从可信身份解析 organization_id
+  → 会话客户端使用 RLS；service role 查询显式过滤组织
+  → 相关写入调用 audit()
+  → ok() / fail() 返回统一响应
 ```
 
-**Superfícies não-cookie:** `/api/v1/cron/*` (Bearer `INTERNAL_CRON_SECRET`, fail-closed),
-`/api/internal/*` (`x-internal-secret`), `/api/mcp` (Bearer `tok_...` contra `api_tokens`),
-`/api/v1/webhooks/*` (HMAC + path token). Inventário completo em
-[`docs/threat-model.md`](docs/threat-model.md) §1.
+每个组织相关数据表包含 `organization_id`。service role 会绕过 RLS，不能把前端或模型传入的组织 ID 当作授权依据。服务端使用 `getUser()` 验证用户，不使用 `getSession()` 作为身份依据。
 
-**Turno do agente de IA:** inbound WhatsApp → HMAC + idempotência → `event_log` →
-worker → `runAgentTurn` (RAG + tools MCP) → guardrails before-send → adapter WAHA →
-handoff humano se gatilho. Diagrama: [`docs/architecture/agent-turn.html`](docs/architecture/agent-turn.html).
+HTTP JSON 使用 snake_case，时间使用 ISO-8601 UTC，金额以 `_cents` 和 `currency` 表示。`X-Request-Id` 关联请求与审计。新增幂等创建接口时应检查 `lib/api/idempotency.ts`，不能假定所有 POST 已支持相同的幂等保证。
 
-## Event log + workers
+## Agent 的业务路径
 
-Triggers Postgres emitem linhas em `event_log`. Workers (cron / Realtime listener) consomem e disparam side effects. Idempotência via `unique (organization_id, external_id)` + captura `code === '23505'`.
+```text
+客户消息 → 渠道验签与去重 → event_log / SQL 队列
+→ Worker 领取 → 组装 CRM、知识和记忆上下文
+→ Pi 模型与工具循环 → Harness 策略和审批
+→ 受控业务效果 → 事件、来源、用量与 Eval
+→ 下一步、恢复或人工接管
+```
 
-Workers vivem em `workers/` (`ai-response`, `ai-sentiment`, `rag-indexer`, `media-persist`,
-`media-derive`, `lgpd-export`, `lgpd-redact`, `storage-cleanup`, `agent-worker`), drenados
-pelos 10 endpoints em `app/api/v1/cron/`. Contrato: [`docs/specs/07-spec-events-workers.md`](docs/specs/07-spec-events-workers.md).
+模型完成、工具执行、进入发送队列、渠道送达和业务验收是不同状态。租约约束执行所有权；外部操作可能完成但本地记账未知时，需要对账，不能直接重放。
 
-## Integrações externas
+## 外部依赖
 
-| Serviço | Uso | Onde | Falta ⇒ |
-|---|---|---|---|
-| **Supabase** | Postgres + Auth + Realtime + Storage | `lib/supabase/{browser,server,admin}.ts` | app não sobe (obrigatório sempre) |
-| **WAHA Plus** (NOWEB) | WhatsApp: envio, recebimento, sessões multi-número | `lib/waha/` | canal indisponível; obrigatório em produção |
-| **Upstash Redis** | rate limit + debounce de RAG | `lib/ai/dispatcher/rate-limit.ts`, `lib/ai/rag/debounce.ts` | degrada para memória com `warn` |
-| **Pi Agent Core + Model Gateway** | loop de agente, tools, provider governance e uso | `lib/agent-runtime/`, `lib/agent-engine/edge/llm/` | agente não responde |
-| **Vercel AI SDK** | embeddings e chamadas auxiliares não-agenticas | `lib/ai/`, workers auxiliares | capacidade auxiliar indisponível |
-| **Nuvemshop** | e-commerce: pedidos, produtos, webhooks LGPD | `lib/nuvemshop/` | opcional (`NUVEMSHOP_ENABLED`) |
-| **Sentry** | erros + performance, `beforeSend` higieniza PII | `sentry.*.config.ts`, `instrumentation*.ts` | opcional |
-| **Resend** | e-mail transacional (convite de time) | `lib/email/` | opcional — o convite cai em copy-to-clipboard |
-| **MCP** | CRM exposto como tools para agentes | `app/api/mcp/`, `lib/mcp/` | — |
+- Supabase：数据库、身份、Realtime、私有 Storage，是完整应用的基础依赖。
+- 渠道适配器：负责消息接收、发送、会话与渠道约束。供应商细节集中在 `lib/channels/` 等适配层。
+- Redis：用于限流和部分协调能力；具体降级行为由对应实现决定。
+- 模型与知识服务：按组织配置凭据和启用状态；未配置时应在界面说明缺失能力。
+- 邮件：可配置 SMTP 或 Resend；路由见 `lib/email/roteador.ts`。
+- Sentry：错误观测与敏感信息清理；配置和隐私边界见源码。
 
-## Hardening
+## 自托管与数据库变更
 
-- Error boundaries em `app/error.tsx`, `app/app/error.tsx`, `app/(public)/error.tsx`, `app/global-error.tsx` (Sentry capture + eventId visível).
-- Páginas customizadas 404/403/500/503 com copy PT-BR canônica.
-- Loading skeletons em rotas P0.
-- E2E Playwright + axe-core.
-- Detalhes: [`docs/stories/epics/EPIC-12-hardening.md`](docs/stories/epics/EPIC-12-hardening.md).
+新数据库以 `supabase/baseline.sql` 为基础。schema 变更必须同时包含：版本 migration、baseline 幂等追加、`supabase/migrations/MANIFEST.md` 记录。不能编辑已经应用的 migration。
 
-## Onde olhar a fundo
+生产 compose 使用已发布镜像；自托管更新必须能到达已有安装。涉及镜像、compose 或安装包时执行 `pnpm test:shell`。如果环境已有反向代理，遵循 [部署说明](docs/runbooks/deploy.md) 同时使用对应 compose 文件。
 
-- [`docs/prd/`](docs/prd/) — PRDs (visão, escopo MVP, KPIs, plataforma base, customer 360, WhatsApp, pipeline, IA-RAG, Nuvemshop).
-- [`docs/specs/`](docs/specs/) — specs técnicas com schema SQL e payloads.
-- [`docs/business-rules/`](docs/business-rules/) — regras de negócio fora do código.
-- [`docs/stories/epics/MASTER.md`](docs/stories/epics/MASTER.md) — plano de execução por epic/wave.
-- [`CLAUDE.md`](CLAUDE.md) — convenções não-negociáveis (multi-tenancy, idempotência, RBAC, LGPD, WAHA, anti-patterns).
-- [`AGENTS.md`](AGENTS.md) — contrato portável para agentes de código (qualquer ferramenta).
-- [`docs/index.md`](docs/index.md) — índice de toda a documentação.
-- [`docs/harness-audit.md`](docs/harness-audit.md) — maturidade do harness e lacunas de verificação.
-- [`docs/threat-model.md`](docs/threat-model.md) — superfície de ataque do self-host.
+## 继续阅读
+
+- [开发配置](docs/SETUP.md)
+- [贡献指南](CONTRIBUTING.md)
+- [请求与平台契约](docs/specs/01-spec-platform-base.md)
+- [事件与 Worker 契约](docs/specs/07-spec-events-workers.md)
+- [Agent–CRM 工作台](docs/architecture/agent-crm-workbench.md)
+- [安全威胁模型](docs/threat-model.md)
+- [架构与系统持续运行约定](docs/doctrine/sistema-vivo.md)

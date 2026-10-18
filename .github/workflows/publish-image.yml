@@ -318,7 +318,7 @@ jobs:
           platforms: linux/amd64
           push: false
           load: true
-          tags: pi-native-crm-smoke:pr
+          tags: pi-native-smoke:pr
           build-args: |
             APP_VERSION=smoke
           # Mesmo escopo de cache do build-and-push: as camadas são idênticas,

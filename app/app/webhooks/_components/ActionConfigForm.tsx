@@ -355,7 +355,7 @@ function CallWebhookForm({
         />
       </div>
       <div className="space-y-1">
-        <Label>Segredo (opcional)</Label>
+        <Label>{t("Segredo (opcional)")}</Label>
         <Input
           type="password"
           value={config.secret ?? ""}

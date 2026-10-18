@@ -297,17 +297,17 @@ function ScheduleDialog({
                 setWindows((ws) => [...ws, { dow: 1, start: "08:00", end: "18:00" }])
               }
             >
-              <Plus size={16} className="mr-1" /> Adicionar janela
+              <Plus size={16} className="mr-1" /> {t("Adicionar janela")}
             </Button>
           </div>
         </div>
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancelar
+            {t("Cancelar")}
           </Button>
           <Button disabled={isPending} onClick={() => onSave(windows, timezone)}>
-            Salvar
+            {t("Salvar")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -365,7 +365,7 @@ function RoutingCard({ canManage }: { canManage: boolean }) {
       <CardContent className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-1.5">
-            <Label>Modo</Label>
+            <Label>{t("Modo")}</Label>
             <Select
               value={current.mode}
               disabled={!canManage}
@@ -382,7 +382,7 @@ function RoutingCard({ canManage }: { canManage: boolean }) {
                 ))}
                 {/* 'load' (balanceamento por carga) é pós-MVP: a API rejeita — desabilitado. */}
                 <SelectItem value="load" disabled>
-                  Balanceamento por carga (em breve)
+                  {t("Balanceamento por carga (em breve)")}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -400,7 +400,7 @@ function RoutingCard({ canManage }: { canManage: boolean }) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="backoff">Backoff (s)</Label>
+            <Label htmlFor="backoff">{t("Backoff (s)")}</Label>
             <Input
               id="backoff"
               type="number"
@@ -419,7 +419,7 @@ function RoutingCard({ canManage }: { canManage: boolean }) {
               onClick={() => update.mutate(current, { onSuccess: () => setDraft(null) })}
               className="w-full sm:w-auto"
             >
-              Salvar
+              {t("Salvar")}
             </Button>
           </div>
         ) : null}
@@ -482,7 +482,7 @@ export function AttendantsClient({ canManage }: Props) {
             ))}
           </div>
         ) : isError ? (
-          <p className="p-4 text-sm text-destructive">Erro ao carregar atendentes.</p>
+          <p className="p-4 text-sm text-destructive">{t("Erro ao carregar atendentes.")}</p>
         ) : attendants.length === 0 ? (
           <p className="p-4 text-sm text-muted-foreground">
             {t("Nenhum atendente na organização. Convide membros com papel de atendente ou superior.")}
@@ -492,7 +492,7 @@ export function AttendantsClient({ canManage }: Props) {
             <TableHeader>
               <TableRow>
                 <TableHead>{t("Atendente")}</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{t("Status")}</TableHead>
                 <TableHead>{t("Carga")}</TableHead>
                 <TableHead>{t("Capacidade")}</TableHead>
                 <TableHead>{t("Horário")}</TableHead>

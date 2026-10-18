@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * AVISO NO WHATSAPP — a tela que uma instalação NOVA encontra (DoD 12, P0).
  *
@@ -122,7 +123,7 @@ async function loginComTotp(page: Page, email: string, secret: string): Promise<
     await primeiroDigito.click();
     await page.keyboard.type(generateTotp(secret), { delay: 40 });
     try {
-      await page.waitForURL(/\/app\//, { timeout: 30_000 });
+      await page.waitForURL(isAppUrl, { timeout: 30_000 });
       return;
     } catch {
       await page.waitForTimeout(msUntilNextTotpWindow() + 200);

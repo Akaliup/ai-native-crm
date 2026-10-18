@@ -698,7 +698,7 @@ export function AgendaClient({
                       )}
                     >
                       {opcao.nome}
-                      <span className="ml-1 tabular-nums opacity-70">{opcao.duracaoMin}min</span>
+                      <span className="ml-1 tabular-nums opacity-70">{opcao.duracaoMin}{t("min")}</span>
                     </button>
                   ))}
                 </div>

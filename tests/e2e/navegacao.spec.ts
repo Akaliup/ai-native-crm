@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * Navegação agrupada — prova pela TELA (DoD item 12).
  *
@@ -42,7 +43,7 @@ async function login(page: Page, email: string): Promise<void> {
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(creds.password);
   await page.getByRole("button", { name: /entrar/i }).click();
-  await page.waitForURL(/\/app\//);
+  await page.waitForURL(isAppUrl);
 }
 
 async function loginAdmin(page: Page): Promise<void> {

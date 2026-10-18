@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * G5-03 — Fila visível com posição + atribuição (acceptance 4, e2e smoke).
  *
@@ -49,7 +50,7 @@ async function login(page: Page, email: string, password: string): Promise<void>
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(password);
   await page.getByRole("button", { name: /entrar/i }).click();
-  await page.waitForURL(/\/app\//, { timeout: 60_000 });
+  await page.waitForURL(isAppUrl, { timeout: 60_000 });
 }
 
 test.describe("G5-03 — fila com posição + atribuição", () => {
