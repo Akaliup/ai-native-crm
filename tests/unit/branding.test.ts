@@ -74,9 +74,15 @@ describe("guarda de namespace removido", () => {
     });
 
     const nomeLegado = new RegExp(["desk", "comm"].join(""), "i");
-    const nomes = execFileSync("rg", ["--files"], { cwd: RAIZ, encoding: "utf8" })
-      .trim()
-      .split("\n")
+    // Git já é requisito desta guarda; não dependa de rg instalado no runner.
+    // NUL preserva nomes com espaços e quebras de linha.
+    const nomes = execFileSync(
+      "git",
+      ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+      { cwd: RAIZ, encoding: "utf8" },
+    )
+      .split("\0")
+      .filter(Boolean)
       .filter((nome) => nomeLegado.test(nome));
 
     expect(ocorrencias).toEqual([]);
@@ -245,7 +251,8 @@ type EntradaDeMarca = {
 const MARCA_CONGELADA: Record<string, EntradaDeMarca> = {
   "lib/ai/internal-collaboration/inbox-crypto.ts": {
     categoria: "PROTOCOLO",
-    motivo: "稳定加密域分离标签，是数据库密文的协议标识；重命名会使已落库的飞书入站消息与出站问题无法解密，不是用户界面品牌。",
+    motivo:
+      "稳定加密域分离标签，是数据库密文的协议标识；重命名会使已落库的飞书入站消息与出站问题无法解密，不是用户界面品牌。",
     marcas: ["pi-native-crm"],
   },
   // ─── PROTOCOLO — contrato de fio. Renomear quebra integração alheia. ───
