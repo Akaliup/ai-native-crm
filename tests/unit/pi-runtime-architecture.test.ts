@@ -1,25 +1,84 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { relative } from "node:path";
+import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
 const ROOT = process.cwd();
 function sourceFilesIn(directory: string): string[] {
-  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    if (entry.name === "node_modules" || entry.name === ".next" || entry.name === ".git") return [];
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) return sourceFilesIn(path);
-    return /\.tsx?$/.test(entry.name) ? [path.slice(ROOT.length + 1)] : [];
-  });
+  const prefix = relative(ROOT, directory).replace(/\\/g, "/");
+  return sourceFiles.filter((file) => !prefix || file.startsWith(`${prefix}/`));
 }
 
-const sourceFiles = sourceFilesIn(ROOT);
+const sourceFiles = execFileSync("git", ["ls-files", "*.ts", "*.tsx"], {
+  encoding: "utf8",
+  cwd: ROOT,
+})
+  .split(/\r?\n/)
+  .filter(Boolean);
+
+function importsPi(source: string): boolean {
+  const ast = ts.createSourceFile(
+    "source.tsx",
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  let found = false;
+  const isPi = (node: ts.Node | undefined) =>
+    node &&
+    ts.isStringLiteralLike(node) &&
+    /^@earendil-works\/pi-(?:agent-core|ai)(?:\/|$)/.test(node.text);
+  function visit(node: ts.Node) {
+    if (
+      (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
+      isPi(node.moduleSpecifier)
+    )
+      found = true;
+    if (
+      ts.isImportTypeNode(node) &&
+      ts.isLiteralTypeNode(node.argument) &&
+      isPi(node.argument.literal)
+    )
+      found = true;
+    if (
+      ts.isCallExpression(node) &&
+      (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
+        (ts.isIdentifier(node.expression) && node.expression.text === "require")) &&
+      isPi(node.arguments[0])
+    )
+      found = true;
+    ts.forEachChild(node, visit);
+  }
+  visit(ast);
+  return found;
+}
 
 describe("Pi runtime architecture boundary", () => {
+  it.each([
+    'import { Agent } from "@earendil-works/pi-agent-core";',
+    'import type { Model } from "@earendil-works/pi-ai";',
+    'export { Agent } from "@earendil-works/pi-agent-core";',
+    'const sdk = await import("@earendil-works/pi-ai/providers/openai");',
+    'const sdk = require("@earendil-works/pi-agent-core");',
+    'type Model = import("@earendil-works/pi-ai").Model;',
+  ])("detects a real SDK dependency: %s", (source) => {
+    expect(importsPi(source)).toBe(true);
+  });
+
+  it("packaging configuration and comments do not import the SDK", () => {
+    expect(importsPi('const config = { serverExternalPackages: ["@earendil-works/pi-ai"] };')).toBe(
+      false,
+    );
+    expect(importsPi('// import { Agent } from "@earendil-works/pi-agent-core";')).toBe(false);
+  });
+
   it("keeps direct Pi SDK imports inside the Pi adapter directory", () => {
     const offenders = sourceFiles.filter((relativePath) => {
       const source = readFileSync(`${ROOT}/${relativePath}`, "utf8");
       return (
-        /@earendil-works\/pi-(?:agent-core|ai)/.test(source) &&
+        importsPi(source) &&
         !relativePath.startsWith("lib/agent-runtime/pi/") &&
         !relativePath.startsWith("tests/agent-runtime/fixtures/")
       );
