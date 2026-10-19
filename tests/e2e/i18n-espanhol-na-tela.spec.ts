@@ -53,6 +53,7 @@ const EVIDENCIA = path.join(process.cwd(), "evidence", "i18n-es");
 mkdirSync(EVIDENCIA, { recursive: true });
 
 const PRAZO = 60_000;
+let localeAnterior: string | null = null;
 
 /**
  * As telas do dia a dia, e uma de configuração.
@@ -116,6 +117,9 @@ function rotulosDeInterface(textos: string[]): string {
 
 /** Todo texto que a pessoa consegue LER nesta tela, normalizado. */
 async function textosVisiveis(page: Page): Promise<string[]> {
+  if (new URL(page.url()).pathname === "/app/metrics") {
+    await expect(page.getByTestId("atrito-metrics")).toBeVisible({ timeout: PRAZO });
+  }
   return page.evaluate(() => {
     const saida: string[] = [];
     const anda = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
@@ -129,6 +133,7 @@ async function textosVisiveis(page: Page): Promise<string[]> {
       // de mentira. O que não conta é o que está escondido de TODO mundo.
       const estilo = getComputedStyle(pai);
       if (estilo.display === "none" || estilo.visibility === "hidden") continue;
+      if (!pai.checkVisibility({ checkVisibilityCSS: true })) continue;
       if (pai.closest("script,style,noscript")) continue;
       saida.push(texto);
     }
@@ -186,9 +191,8 @@ async function porIdiomaEm(page: Page, codigo: "pt-BR" | "es"): Promise<void> {
  * tinha deixado em espanhol.
  *
  * Por isso a restauração é `afterAll` e vai DIRETO AO BANCO, não pela tela: se
- * a falha foi na tela, restaurar pela tela falharia junto. `null` (e não
- * "pt-BR") porque `null` é a ausência de preferência, que é como a conta nasce
- * do seed — devolver um valor onde não havia nenhum é deixar outro rastro.
+ * a falha foi na tela, restaurar pela tela falharia junto. Devolve exatamente
+ * a preferência lida antes da corrida, inclusive quando ela estava ausente.
  */
 /**
  * Um contato com atividade de ONTEM — a única forma de a data virar PALAVRA.
@@ -208,6 +212,11 @@ test.beforeAll(async () => {
   const svc = createClient(c.url, c.serviceRole, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
+  const original = await svc.auth.admin.listUsers({ page: 1, perPage: 200 });
+  if (original.error) throw original.error;
+  const usuarioOriginal = original.data.users.find((user) => user.email === creds.users.admin!.email);
+  if (!usuarioOriginal) throw new Error("usuário do idioma ausente do seed");
+  localeAnterior = usuarioOriginal.user_metadata?.locale ?? null;
   /**
    * A organização é a DO SEED, nomeada — nunca "a primeira que vier".
    *
@@ -271,7 +280,7 @@ test.afterAll(async () => {
   const admin = data?.users.find((u) => u.email === email);
   if (!admin) throw new Error(`restauração: não achei ${email} para devolver o idioma`);
   const { error } = await svc.auth.admin.updateUserById(admin.id, {
-    user_metadata: { ...admin.user_metadata, locale: null },
+    user_metadata: { ...admin.user_metadata, locale: localeAnterior },
   });
   if (error) throw new Error(`restauração do idioma falhou: ${error.message}`);
 });

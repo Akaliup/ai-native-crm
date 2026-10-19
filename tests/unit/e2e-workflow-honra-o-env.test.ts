@@ -69,6 +69,14 @@ const GERA_ENV = /pnpm (e2e:env|exec .*gerar-env-e2e)|bash scripts\/gerar-env-e2
 const CONSOME_ENV = /pnpm (test:e2e|e2e:build)|playwright test/;
 
 describe("o workflow do e2e honra o contrato de ambiente que a suíte exige", () => {
+  it("a confirmação e a recuperação de senha têm uma caixa de e-mail local", () => {
+    const supabase = fs.readFileSync(path.join(RAIZ, "supabase/config.toml"), "utf8");
+    const inbox = supabase.match(/\[inbucket\]([\s\S]*?)(?=\n\[|$)/)?.[1];
+    expect(inbox).toBeDefined();
+    expect(inbox).toMatch(/^enabled\s*=\s*true\s*$/m);
+    expect(inbox).toMatch(/^port\s*=\s*54324\s*$/m);
+  });
+
   it("a suíte de fato exige o .env.e2e (guarda de vacuidade)", () => {
     // Sem isto, o dia em que `playwright.config.ts` parar de exigir o arquivo,
     // os casos abaixo continuariam verdes vigiando uma regra que não existe

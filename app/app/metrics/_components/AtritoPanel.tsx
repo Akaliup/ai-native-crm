@@ -148,7 +148,7 @@ export function AtritoPanel({ podeEditarRegua }: { podeEditarRegua: boolean }) {
   );
 
   return (
-    <section className="flex flex-col gap-3">
+    <section data-testid="atrito-metrics" className="flex flex-col gap-3">
       <div>
         <h2 className="text-base font-medium">{t("Atrito")}</h2>
         <p className="text-sm text-muted-foreground">
