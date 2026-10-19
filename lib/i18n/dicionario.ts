@@ -10868,6 +10868,7 @@ export const DICIONARIO: Traducoes = {
   "Crie uma conexão separada por QR no outro sistema.": {
     es: "Crea una conexión separada por QR en el otro sistema.",
   },
+  "Nome do fluxo": { es: "Nombre del flujo" },
 };
 
 // O catálogo chinês é mantido como JSON para permitir revisão por lote e

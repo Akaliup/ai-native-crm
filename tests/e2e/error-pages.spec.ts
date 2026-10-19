@@ -1,5 +1,20 @@
 import { test, expect } from "@playwright/test";
 
+test.describe("Chinese error pages", () => {
+  test.use({ locale: "zh-CN" });
+  for (const [path, title] of [
+    ["/404", "404 — 页面未找到"],
+    ["/500", "500 — 内部错误"],
+    ["/503", "503 — 维护中"],
+  ]) {
+    test(`${path} follows the Chinese browser preference without a session`, async ({ page }) => {
+      await page.goto(path!);
+      await expect(page.getByRole("heading", { name: title, exact: true })).toBeVisible();
+      await page.screenshot({ path: test.info().outputPath("chinese-error-page.png") });
+    });
+  }
+});
+
 test.describe("error pages", () => {
   test("/404 renders PT-BR copy", async ({ page }) => {
     const res = await page.goto("/404");

@@ -318,7 +318,7 @@ jobs:
           platforms: linux/amd64
           push: false
           load: true
-          tags: pi-native-crm-smoke:pr
+          tags: pi-native-smoke:pr
           build-args: |
             APP_VERSION=smoke
           # Mesmo escopo de cache do build-and-push: as camadas são idênticas,
@@ -371,6 +371,12 @@ jobs:
 
           echo "o app chegou a servir:"
           docker logs smoke 2>&1 | grep -E "Ready in|Next.js" | head -3
+
+      - name: O SDK do agente carrega dentro da imagem?
+        run: |
+          set -euo pipefail
+          docker cp scripts/sonda-pi-na-imagem.mjs smoke:/app/sonda-pi-na-imagem.mjs
+          docker exec smoke node /app/sonda-pi-na-imagem.mjs
 
       # Issue #1075. O passo acima prova que o contêiner SOBE; nenhum passo provava
       # que uma rota que depende de um arquivo FORA do bundle FUNCIONA. Em Node o

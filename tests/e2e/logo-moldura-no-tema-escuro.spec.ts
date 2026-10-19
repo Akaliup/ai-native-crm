@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * A MOLDURA CLARA DO LOGO NO TEMA ESCURO — QUEM A RECEBE, E QUEM NÃO RECEBE.
  *
@@ -77,6 +78,7 @@ import * as zlib from "node:zlib";
 import { test, expect, type Page, type Locator } from "@playwright/test";
 
 import { generateTotp, msUntilNextTotpWindow } from "./utils/totp";
+import { DEFAULT_APP_NAME } from "../../lib/branding";
 
 const CREDS_PATH = path.join(process.cwd(), ".e2e-creds.json");
 const EVIDENCIA = path.join(process.cwd(), "evidence", "logo-moldura-tema-escuro");
@@ -286,7 +288,7 @@ async function loginComTotp(page: Page, email: string, secret: string): Promise<
     await page.keyboard.type(generateTotp(secret), { delay: 40 });
 
     const desfecho = await Promise.race([
-      page.waitForURL(/\/app\//, { timeout: 60_000 }).then(
+      page.waitForURL(isAppUrl, { timeout: 60_000 }).then(
         () => "entrou" as const,
         () => "sem-desfecho" as const,
       ),
@@ -519,7 +521,7 @@ test.describe("a moldura do logo no tema escuro", () => {
       "ainda há um <img> na barra — o logo enviado não foi removido, e o caso mediria outra coisa",
     ).toHaveCount(0, { timeout: 15_000 });
 
-    const marca = barra.getByRole("img", { name: "pi-native-crm" });
+    const marca = barra.getByRole("img", { name: DEFAULT_APP_NAME, exact: true });
     await expect(
       marca,
       "a barra não caiu no ramo `marcaDoProduto` — sem ele não há fronteira para medir",

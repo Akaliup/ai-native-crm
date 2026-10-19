@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * O WIZARD, PELA TELA, DENTRO DO CI.
  *
@@ -433,7 +434,7 @@ test.describe("o wizard monta um funcionário", () => {
     await expect(page.locator("body")).not.toContainText(/Nuvemshop/i);
 
     await page.getByRole("button", { name: /começar a usar/i }).click();
-    await page.waitForURL(/\/app\//, { timeout: 30_000 });
+    await page.waitForURL(isAppUrl, { timeout: 30_000 });
 
     const { data: org } = await svc
       .from("organizations")

@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * Task 8.3 — JORNADA E2E completa: a prova única que amarra o sistema de
  * follow-up inteiro. Silêncio → enroll (gate do agente) → engine avança
@@ -121,7 +122,7 @@ async function loginWithTotp(page: Page, email: string, secretTotp: string): Pro
     await firstDigit.click();
     await page.keyboard.type(code, { delay: 40 });
     try {
-      await page.waitForURL(/\/app\//, { timeout: 8_000 });
+      await page.waitForURL(isAppUrl, { timeout: 8_000 });
       return;
     } catch {
       await page.waitForTimeout(msUntilNextTotpWindow() + 200);

@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * A PROVA EM TELA do print de 16/09/2026, em que o dono do produto mostrava o
  * construtor de fluxos e o cartão do nó dizia coisas que o motor não faz:
@@ -55,7 +56,7 @@ async function login(page: Page, email: string): Promise<void> {
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(creds.password);
   await page.getByRole("button", { name: /entrar/i }).click();
-  await page.waitForURL(/\/app\//, { timeout: PRAZO });
+  await page.waitForURL(isAppUrl, { timeout: PRAZO });
 }
 
 async function novoFluxo(page: Page, nome: string): Promise<string> {

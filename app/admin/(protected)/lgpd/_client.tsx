@@ -118,7 +118,7 @@ export function LgpdAdminClient() {
             <SelectItem value="expired">{t("Vencido")}</SelectItem>
             <SelectItem value="at_risk">{t("Crítico (<24h)")}</SelectItem>
             <SelectItem value="warning">{t("Alerta (>50%)")}</SelectItem>
-            <SelectItem value="ok">OK</SelectItem>
+            <SelectItem value="ok">{t("OK")}</SelectItem>
           </SelectContent>
         </Select>
 

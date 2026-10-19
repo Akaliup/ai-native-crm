@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * A PROVA EM TELA da queixa original, dita com as palavras de quem reclamou:
  *
@@ -59,7 +60,7 @@ async function login(page: Page, email: string): Promise<void> {
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(creds.password);
   await page.getByRole("button", { name: /entrar/i }).click();
-  await page.waitForURL(/\/app\//, { timeout: PRAZO });
+  await page.waitForURL(isAppUrl, { timeout: PRAZO });
 }
 
 /**

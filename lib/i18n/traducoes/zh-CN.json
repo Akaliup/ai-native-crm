@@ -6958,5 +6958,6 @@
   "No canal por QR a credencial é interna desta instalação e não serve para fora. Para ligar outro CRM ao mesmo número, conecte-o por uma sessão própria (novo QR).": "二维码渠道的凭据仅在此安装内部有效，不能用于外部系统。要将其他 CRM 连接到同一号码，请通过独立会话（新二维码）连接。",
   "Dois dispositivos vinculados recebem as mesmas mensagens — se os dois tiverem atendimento automático, o cliente pode receber resposta dupla.": "两个关联设备会收到相同消息——如果两者都启用自动服务，客户可能收到重复回复。",
   "Não compartilhe esta sessão.": "请勿共享此会话。",
-  "Crie uma conexão separada por QR no outro sistema.": "请在另一个系统中通过二维码创建独立连接。"
+  "Crie uma conexão separada por QR no outro sistema.": "请在另一个系统中通过二维码创建独立连接。",
+  "Nome do fluxo": "流程名称"
 }

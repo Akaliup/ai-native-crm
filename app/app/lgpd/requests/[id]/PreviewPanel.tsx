@@ -144,7 +144,7 @@ export function PreviewPanel({ requestId }: PreviewPanelProps) {
                     <SampleBlock label={t("Mensagens (recentes)")} rows={preview.sample.messages_recent} />
                   )}
                   {preview.sample.leads.length > 0 && (
-                    <SampleBlock label="Leads" rows={preview.sample.leads} />
+                    <SampleBlock label={t("Leads")} rows={preview.sample.leads} />
                   )}
                   {preview.sample.orders.length > 0 && (
                     <SampleBlock label={t("Pedidos")} rows={preview.sample.orders} />

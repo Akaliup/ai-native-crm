@@ -50,7 +50,7 @@ export function FlowsList({ initialData, canWrite }: Props) {
 
   const newFlowButton = (
     <Button onClick={() => setDialogOpen(true)} variant="outline" className="w-full sm:w-auto">
-      <Plus size={14} aria-hidden className="mr-2" /> Novo fluxo
+      <Plus size={14} aria-hidden className="mr-2" /> {t("Novo fluxo")}
     </Button>
   );
 
@@ -114,12 +114,12 @@ export function FlowsList({ initialData, canWrite }: Props) {
                     <dd className="font-mono">{flow.active_version_id ? "publicada" : "—"}</dd>
                   </div>
                   <div>
-                    <dt className="text-text-muted">Handoff</dt>
+                    <dt className="text-text-muted">{t("Handoff")}</dt>
                     <dd className="font-mono">{flow.handoff_policy}</dd>
                   </div>
                 </dl>
                 <p className="mt-auto pt-2 text-xs text-text-muted">
-                  Atualizado em {formatUpdatedAt(flow.updated_at, tagDoIdioma)}
+                  {t("Atualizado em")} {formatUpdatedAt(flow.updated_at, tagDoIdioma)}
                 </p>
               </Link>
               {canWrite && (

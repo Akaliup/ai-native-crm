@@ -12,6 +12,8 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { NewFlowDialog } from "./NewFlowDialog";
+import { IdiomaProvider } from "@/lib/i18n/IdiomaProvider";
+import type { Idioma } from "@/lib/i18n/idiomas";
 
 const criar = vi.fn();
 vi.mock("@/hooks/followup/useFollowupFlows", () => ({
@@ -35,11 +37,13 @@ function respondeCom(resposta: (opts: OpcoesDeMutacao) => void): void {
   });
 }
 
-function montar() {
+function montar(locale: Idioma = "pt-BR") {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={client}>
-      <NewFlowDialog open onOpenChange={() => {}} />
+      <IdiomaProvider locale={locale}>
+        <NewFlowDialog open onOpenChange={() => {}} />
+      </IdiomaProvider>
     </QueryClientProvider>,
   );
 }
@@ -47,7 +51,7 @@ function montar() {
 async function preencheEEnvia(nome: string): Promise<HTMLElement> {
   const user = userEvent.setup({ delay: null });
   montar();
-  const campo = screen.getByLabelText("Nome");
+  const campo = screen.getByLabelText("Nome do fluxo");
   await user.type(campo, nome);
   await user.click(screen.getByRole("button", { name: "Criar fluxo" }));
   return campo;
@@ -55,6 +59,15 @@ async function preencheEEnvia(nome: string): Promise<HTMLElement> {
 
 describe("NewFlowDialog — o POST que falha não pode sumir", () => {
   beforeEach(() => criar.mockReset());
+
+  it("traduz os controles para chinês sem traduzir o nome digitado", async () => {
+    const user = userEvent.setup({ delay: null });
+    montar("zh-CN");
+    await user.type(screen.getByLabelText("流程名称"), "恢复购物车");
+    expect(screen.getByRole("button", { name: "取消" })).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "创建流程" }));
+    expect(criar).toHaveBeenCalledWith("恢复购物车", expect.any(Object));
+  });
 
   it("mostra a mensagem do servidor e mantém o nome digitado", async () => {
     respondeCom((opts) => opts.onError?.(new Error("Já existe um fluxo com esse nome.")));
@@ -71,7 +84,9 @@ describe("NewFlowDialog — o POST que falha não pode sumir", () => {
 
     await preencheEEnvia("Qualquer coisa");
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Não consegui criar o fluxo. Tente de novo.");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Não consegui criar o fluxo. Tente de novo.",
+    );
   });
 
   it("sucesso não deixa alerta na tela", async () => {

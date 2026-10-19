@@ -1,231 +1,68 @@
-# Contributing — Pi Native CRM
+# 贡献指南
 
-## Antes de começar
+本仓库从开源项目的源码快照开始，保留 MIT 许可证与上游来源。请区分继承能力与自己的增量；不补造历史提交、生产指标或个人职责。
 
-0. Abra o repositório no seu assistente de código (Claude Code, Codex, Cursor, OpenCode ou
-   Antigravity) e rode os checks locais antes do PR. Para instalar os guias auxiliares em qualquer
-   pasta, use `bash scripts/instalar-guias.sh`; ao editar um guia, rode o mesmo instalador com
-   `--fonte .` para garantir que a cópia do clone é a usada.
-1. Leia [`CLAUDE.md`](CLAUDE.md) — convenções não-negociáveis.
-2. Leia [`ARCHITECTURE.md`](ARCHITECTURE.md) — visão de 1 página.
-3. Identifique o epic de origem em [`docs/stories/epics/MASTER.md`](docs/stories/epics/MASTER.md).
+## 开始之前
 
-## Fluxo
+1. 阅读 [CLAUDE.md](CLAUDE.md) 和 [AGENTS.md](AGENTS.md)。约定冲突时，CLAUDE.md 优先。
+2. 阅读 [架构说明](ARCHITECTURE.md) 和 [文档入口](docs/index.md)。
+3. 检查 `git status`、当前分支和远程地址。不要操作其他会话尚未提交的文件。
+4. 从更新后的 main 建立命名分支，使用 merge 保留已有工作；不执行 `reset --hard` 或强制推送。
 
-### Branches
+仓库提供 `.agents/skills/` 指南。在 Codex 中可以调用 `$pi-native-contribuir`；安装和排障可调用 `$pi-native-instalar`。需要安装到全局位置时使用 `bash scripts/instalar-guias.sh`，编辑本地指南时可使用 `--fonte .`。
 
-```
-feat/EPIC-XX-short-slug         # nova feature
-fix/EPIC-XX-short-slug          # bug fix
-chore/short-slug                # chore (deps, configs)
-docs/short-slug                 # apenas docs
-```
+## 分支与提交
 
-### Commits
-
-Conventional commits + escopo `EPIC-XX`:
-
-```
-feat(EPIC-04): kanban drag-and-drop com fractional indexing
-fix(EPIC-03): cron recover-stuck-messages marcando sending stuck >5min como failed
-docs(EPIC-12): mark complete + wave log
+```text
+feat/short-description
+fix/short-description
+docs/short-description
+chore/short-description
 ```
 
-Mensagens em PT-BR são aceitas. O assunto deve ser imperativo e ≤72 chars.
+采用 Conventional Commits，例如 `fix(ci): repair image smoke tag`。如果关联 epic，在提交和 PR 中注明真实来源。不要把自己的品牌、密钥或部署配置混入通用产品改动。
 
-### epic-executor
-
-Mudanças grandes seguem [`docs/stories/epics/`](docs/stories/epics/). O `epic-executor` consome o frontmatter (`epic_id`, `priority`, `depends_on`, `status`) e executa wave-by-wave com validação E2E continuous.
-
-Ao finalizar um epic:
-
-1. Atualizar frontmatter `status: pending → completed (partial: ...)` ou `status: completed`.
-2. Append "Wave Completion Log" no final do arquivo.
-3. Atualizar a row correspondente em `docs/stories/epics/MASTER.md`.
-
-### PR process
-
-1. Branch a partir de `main`.
-2. Implementar. Adicionar testes (E2E pra fluxos, unit pra lógica pura).
-3. **Definition of Done.** A lista está separada em duas por um motivo: até hoje ela misturava
-   o que uma máquina reprova com o que só uma pessoa percebe, e contribuidor marcava o checklist
-   inteiro de boa-fé para ser barrado por um gate que ninguém tinha contado a ele.
-
-   **O que o CI reprova sozinho** — rode antes de abrir o PR e não terá surpresa:
-
-   ```bash
-   pnpm cercas    # ~30 s: as guardas estruturais (baseline, MANIFEST, docs, workflows) — o que mais reprova PR
-   pnpm typecheck && pnpm lint && pnpm lint:channels && pnpm test:unit && pnpm test:shell && pnpm build
-   pnpm test:db   # precisa de Docker; sobe um Postgres limpo e aplica o baseline
-   ```
-
-   **O que o CI NÃO vê** — fica com você e com a revisão, e é onde moram os defeitos caros:
-
-   - RLS habilitada e policy `tenant_isolation_<tabela>_all` se você criou tabela tenant-aware
-     (o teste de isolamento cobre uma lista fixa de tabelas; a sua nova não entra sozinha)
-   - Audit log emitido se há mutação relevante
-   - Rate limit aplicado se a rota é pública
-   - Zod validando todo input externo
-   - Sem `console.log` esquecido (use `lib/logger.ts`). **O `pnpm lint` não reprova isso** — a regra
-     está como aviso, então ele passa verde; a conferência é humana
-   - Env vars novas em `.env.example` **e** `lib/env.ts`, com default que não quebre instalação nova
-   - Mudança de schema saiu como **tripla**: arquivo em `supabase/migrations/`, apêndice idempotente
-     no `supabase/baseline.sql` e linha no `MANIFEST.md`. O kit self-host aplica **só o baseline** —
-     migration que não chega lá não chega em quem instalou numa VPS. Nenhum job de CI confere isso
-   - **Se você tocou `Dockerfile*`, `docker-compose*.yml` ou `hostgator-setup-kit/`:** a mudança
-     alcança quem **já** instalou. Lei em [`docs/doctrine/packaging.md`](docs/doctrine/packaging.md).
-     O CI reprova serviço `build:`-only, instalação em tag móvel e imagem quebrada (`imagens-ok`);
-     o que fica com você é o resto: variável nova com default que não quebre `.env` antigo, e a
-     atualização não pedindo edição manual de arquivo. **Nenhum bump pode exigir que o operador
-     da VPS edite alguma coisa na mão** — se exigir, abra issue com plano de migração em vez de PR
-   - Docs atualizadas se mudou contrato (PRD/spec)
-   - `pnpm test:e2e` (subset relevante) — **opcional se você contribui de fora**, ver abaixo
-4. Abrir PR contra `main`. Description deve referenciar o epic e listar evidências (logs/screenshots dos testes).
-5. **Tocou um documento de autoridade?** Corrija as afirmações de estado **daquele** documento —
-   as que dizem o que está ativo, o que falta, o que aponta para onde. Não saia caçando nos
-   outros: a dívida decai sozinha se ninguém a alimentar. Achados medidos, com o comando de cada
-   um, em [`docs/audits/2026-08-14-afirmacoes-de-estado.md`](docs/audits/2026-08-14-afirmacoes-de-estado.md).
-
-6. CI deve passar antes de merge. Obrigatórios: `verify`, `invariants` (isolamento RLS),
-   `build-and-size`, `e2e` e `imagens-ok`.
-
-   O `imagens-ok` (em `.github/workflows/publish-image.yml`) constrói as três imagens que o
-   self-hoster instala, roda em PR e **bloqueia** desde 2026-08-13.
-
-   Verde no `e2e` **não** é "jornada provada": ele mesmo imprime, no resumo, quais specs não
-   cobriu. Quais são, leia do próprio workflow em vez de desta linha — ela já disse que a de
-   fora era `vps-fresh-onboarding`, a instalação do zero, e desde o PR #983 essa roda no CI:
-
-   ```bash
-   git show origin/main:.github/workflows/e2e.yml | grep -A4 'FORA_DO_CI:'
-   ```
-
-   E mesmo a jornada que TEM gate continua devendo a prova pela tela quando você mexe nela
-   (DoD 12): gate prova que não regrediu, não que a experiência ficou boa.
-
-   > Esta lista dizia "três obrigatórios" e chamava o `e2e` de não-bloqueante. Estava
-   > desatualizada nos dois pontos, e quem a usasse como régua mediria contra a régua errada.
-   > Confira na fonte antes de confiar em qualquer lista escrita:
-   > Consulte os checks obrigatórios na configuração do repositório de origem do seu deployment.
-
-### Pegando uma issue — o protocolo
-
-Existe porque já falhamos nisto: em 2026-07-30 abrimos uma issue, um contribuidor
-começou a resolvê-la, e um mantenedor entregou a mesma correção **21 segundos antes**
-sem que nenhum dos dois pudesse ver o outro. O trabalho dele foi para o lixo. As regras
-abaixo são para que isso não se repita.
-
-1. **Comente "pego esta" antes de codar.** Uma linha basta. Um mantenedor te atribui a
-   issue — a partir daí ela é sua e ninguém mais mexe.
-2. **Issue com pessoa atribuída não se duplica.** Se você quer ajudar mesmo assim,
-   comente oferecendo; não abra PR concorrente.
-3. **Mantenedor não implementa issue marcada `good first issue` ou `help wanted`** sem
-   antes se atribuir a ela publicamente. Se você vir uma dessas sem dono, ela é sua para
-   pegar — essa é a garantia que damos em troca do passo 1.
-4. **Sem resposta em 48h depois do "pego esta"?** Comece assim mesmo e diga no PR. A
-   demora é nossa, o custo não pode ser seu.
-
-### Se você está contribuindo de fora (fork) — leia isto
-
-Uma coisa vai parecer erro seu e não é:
-
-- **Os workflows ficam parados esperando aprovação** no seu primeiro PR. É política do
-  GitHub para quem nunca contribuiu antes. Um mantenedor libera; do segundo PR em diante
-  roda sozinho. Se demorar, comente no PR.
-
-**Abra o PR de um ramo com nome, nunca do `main` do seu fork.** Se o `main` do fork já tem
-personalizações suas — e ele quase sempre tem, porque é dele que a sua VPS puxa —, o PR propõe
-essas personalizações ao produto inteiro. Isso não gera conflito e não acende gate nenhum: elas
-entram em silêncio para todas as instalações. Foi medido (PR #465): sete arquivos com a marca de um
-cliente, seis deles mergeando sem um único conflito. O caminho é `git checkout -b fix/o-que-voce-conserta`
-a partir da `main` **deste** repositório, com só o seu conserto dentro.
-
-**Com "Allow edits by maintainers" ligado no seu PR, o projeto pode empurrar um conserto direto na
-branch do PR** — um ajuste mecânico, ou a `main` trazida para dentro quando há conflito. Sempre como
-commit novo: nunca `--force`, nunca rebase, e os seus commits ficam como estão. Avisamos no PR antes
-de empurrar. Quando isso acontecer, traga a branch antes de continuar (`git pull --no-rebase`) e só
-então empurre de novo; um `--force` do seu lado apagaria o que foi empurrado do lado de cá. Com a
-opção desligada, o conserto vai numa branch nossa. Nos dois caminhos, o trabalho que é seu entra com
-você como autor.
-
-**A marca da sua instalação não se troca editando código.** Não altere `DEFAULT_APP_NAME` em
-`lib/branding.ts`, nem os títulos em `app/`. O banco manda (`platform_branding`,
-`organizations.settings.branding`), `APP_NAME` no `.env` é a semente que o `install.sh` pergunta, e
-o resto é a tela **Configurações › Marca**. Receita inteira em [`docs/white-label.md`](docs/white-label.md).
-Editar a constante troca o padrão do PRODUTO — e a sua marca some no próximo `git pull`, o que é a
-razão prática de o caminho suportado ser melhor para você também.
-
-E sobre o `pnpm test:e2e` do DoD: rodar a suíte completa exige Docker, banco semeado e WAHA
-local. **Não travamos PR externo nisso** — mande o que conseguiu provar (unit + descrição do
-que testou na mão), que a prova de tela fica com o mantenedor. Exigir prova sem entregar a
-ferramenta de produzi-la seria pedágio, não rigor.
-
-### `tests/invariants/` é congelado — e isso vale para o COMPORTAMENTO, não só para o arquivo
-
-Os arquivos de `tests/invariants/` guardam leis do produto, e mexer neles pede justificativa
-escrita. Duas coisas que não estão óbvias e já custaram tempo a quem contribui:
-
-1. **O guarda é um hook local do mantenedor** (`core.hooksPath=loop/hooks`), não um check do CI.
-   Você não vai vê-lo reprovar no seu fork — o que você vê é a integração travar depois.
-2. **Um PR pode reprovar um invariante sem tocar no arquivo dele.** Se o seu conserto muda o
-   comportamento que a lei afirma, o vermelho aparece lá. Isso **não é um descuido seu** — é o
-   sinal de que existem duas regras concorrentes, a que está escrita e a que você propõe.
-
-Quando acontecer, **não apague nem afrouxe a asserção**: diga no PR qual é a sua razão e deixe a
-escolha explícita. Quem tria escreve a mudança do invariante com a justificativa exigida, ou ajusta
-o conserto para preservar a lei antiga — e a decisão fica registrada no PR, que é onde ela serve
-para a próxima pessoa.
-
-### Texto de tela: toda frase nova precisa do espanhol
-
-O produto fala português e espanhol, e o CI reprova **frase nova sem tradução**. A regra não
-estava escrita aqui até 16/09/2026, e um PR de primeira contribuição foi reprovado por ela — a
-falha era nossa, não de quem contribuiu.
-
-Se você acrescentou uma frase que aparece na tela, ela passa por `t("...")` **e** ganha uma linha
-em `lib/i18n/dicionario.ts`:
-
-```ts
-"Digite o identificador do modelo": { es: "Escribe el identificador del modelo" },
-```
-
-A chave é o texto em português (não um código). Só o espanhol precisa de linha; o resto degrada
-para o português de propósito.
-
-Para conferir antes de abrir o PR, sem rodar a suíte inteira:
+## 实现与检查
 
 ```bash
-pnpm test:unit tests/unit/i18n-espanhol-cobre-a-tela.test.ts
+pnpm cercas
+pnpm typecheck
+pnpm lint
+pnpm lint:channels
+pnpm lint:role-rank
+pnpm test:unit
+pnpm build
 ```
 
-Ele reprova nas duas direções: chave usada na tela sem espanhol, e prosa em português que não
-passou por `t()`. **Se você não fala espanhol, mande assim mesmo** e diga no PR — a tradução é
-trabalho de dez segundos para quem tria, e não é motivo para segurar um conserto.
+按改动范围追加：
 
-### Anti-patterns proibidos
+- 数据库 schema、RLS 或租户隔离：`pnpm test:db`。
+- UI 或用户流程：`pnpm test:e2e`，使用本地测试数据库并保留截图或 trace。
+- Dockerfile、compose、安装和升级脚本：`pnpm test:shell`。
 
-Lista completa em `CLAUDE.md`. Os mais letais:
+`pnpm gov:verify` 不能替代数据库、浏览器和自托管脚本检查。无法运行某项检查时，在 PR 说明原因和已经证明的范围，不勾选未执行项目。
 
-- Trigger Postgres fazendo HTTP
-- Service role usado em handler sem filtrar `organization_id` manualmente
-- `getSession()` no backend (use `getUser()`)
-- API key em query string
-- Bearer plaintext no DB
-- `console.log` em código merged
+## 必须守住的边界
 
-## Setup local
+- 外部输入经过 Zod；角色使用规范 guard；组织 ID 来自可信身份。
+- service role 查询显式过滤组织，新增组织表启用 RLS。
+- 相关写入发出审计；使用结构化 logger，不遗留 `console.log`。
+- schema 变更提交 migration、baseline 幂等追加和 MANIFEST 三项；不改已应用 migration。
+- 新变量进入 `.env.example` 和 `lib/env.ts`，默认值不能破坏已有安装。
+- 私有配置、真实客户数据和访问令牌不进入仓库。
+- 新页面必须有导航入口；新行为说明输入、输出、下一步及人工接管路径。
+- 自托管更新不要求用户手动修改源码；已有代理环境遵循部署 runbook。
 
-Veja [`README.md`](README.md) §Como rodar local.
+`tests/invariants/` 保存产品约束。若业务变更与约束冲突，先在 PR 说明理由，不删除或放宽断言来获得绿色结果。当前完整 Definition of Done 见 [CLAUDE.md](CLAUDE.md)。
 
-## Suporte
+## PR 与发布记录
 
-**Discussions** — use o canal público configurado pelo deployment; ele funciona para qualquer
-pessoa e mantém a resposta registrada para quem vier depois. Para bugs, abra uma issue no
-repositório de origem configurado para a instalação.
+PR 说明应包含：触发问题、最终行为、改动归属、测试命令和结果、没有测量的内容。不要仅凭仓库里有某文件声称已完成线上交付。
 
-Se for algo que não cabe em público (segurança, por exemplo), use o relato privado de
-vulnerabilidade do GitHub — o mesmo canal indicado no [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+可见行为变更提供 `.changes/` 片段，格式参照现有文件，执行 `pnpm release:conferir`。不手写 CHANGELOG 版本章节；版本由发布流程生成。
 
-> Esta seção apontava para um Discord interno cujo convite mora num Notion privado — inalcançável
-> justamente para quem mais precisava dela, que é quem vem de fora. Ficou aqui como lembrete de que
-> canal de suporte se testa pelo lado de fora.
+大型 epic 保留 `epic_id`、`priority`、`depends_on`、`status` 等机器字段，完成后更新执行记录和 `docs/stories/epics/MASTER.md`。如果维护者向 PR 分支追加修复，先拉取再继续，不使用强制推送覆盖。
+
+## 品牌与许可证
+
+品牌由数据库和设置界面管理，不修改 `DEFAULT_APP_NAME` 或硬编码产品名称来定制某个客户。参见 [品牌说明](docs/white-label.md)。保留 LICENSE 和原版权声明。

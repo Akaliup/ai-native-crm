@@ -208,6 +208,9 @@ node scripts/serve-agent-demo.mjs
 ## 文档
 
 - [文档入口](docs/index.md)
+- [本地安装与配置（中文）](docs/SETUP.md)
+- [架构概览（中文）](ARCHITECTURE.md)
+- [贡献指南（中文）](CONTRIBUTING.md)
 - [Agent 架构](docs/architecture/README.md)
 - [商机 Mission 与执行状态](docs/architecture/mission-state.md)
 - [飞书内部协作接口](docs/architecture/internal-collaboration-feishu.md)

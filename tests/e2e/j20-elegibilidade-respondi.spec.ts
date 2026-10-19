@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * J20.6 — UMA NOVA SUBMISSÃO DO RESPONDI AUTORIZA A IA (e o retorno do lead
  * pelo WhatsApp é atendido).
@@ -80,7 +81,7 @@ async function login(page: Page, email: string): Promise<void> {
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(creds.password);
   await page.getByRole("button", { name: /entrar/i }).click();
-  await page.waitForURL(/\/app\//);
+  await page.waitForURL(isAppUrl);
 }
 
 /** Payload do Respondi com telefone + respondent_id únicos por execução. */

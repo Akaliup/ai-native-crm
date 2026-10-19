@@ -47,8 +47,8 @@ port = 54323
 api_url = "http://127.0.0.1:54321"
 
 [inbucket]
-# 邮件收件箱仅在调试邮件流程时开启。
-enabled = false
+# 本地注册与密码恢复测试需要实际邮件收件箱。
+enabled = true
 port = 54324
 
 [storage]

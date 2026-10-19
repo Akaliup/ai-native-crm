@@ -1,197 +1,86 @@
----
-type: index
-project: pi-native-crm
-status: draft
-last_updated: 2026-07-29
-generated_by: auditoria documental (Claude Code)
-confidence: alta (inventário de arquivos é CONFIRMADO; agrupamento temático é INFERIDO)
-audited_against: origin/main @ 789dfa6 (v1.0.0, 2026-07-27)
----
+# 文档导航
 
-# Índice da documentação — pi-native-crm
+这里是本仓库的阅读入口。首页、安装指南、架构概览、贡献指南、安全政策与项目愿景已提供中文；深层规范、历史记录和部分运维手册仍保留上游原文。文件名、代码标识符与协议字段保持兼容。
 
-Mapa dos **154** arquivos `.md` de `docs/`, espalhados por **20** subpastas — medido em
-2026-08-14, com as réguas ao lado: `git ls-files 'docs/**/*.md' | wc -l` e
-`git ls-files 'docs/**/*.md' | sed 's|^docs/||;s|/.*||' | sort -u | wc -l`. Os dois números
-estavam errados (149 e 24) e a segunda régua nem existia — é a mesma classe que
-[`audits/2026-08-14-afirmacoes-de-estado.md`](audits/2026-08-14-afirmacoes-de-estado.md)
-cataloga. Existe porque a documentação cresceu sem ponto
-de entrada: sem este índice, humano e agente não acham o que já foi decidido e
-reescrevem por cima.
+文档可能记录过去状态或未来规划。判断功能是否可用，请结合当前源码、测试和实际演示，不将规划与历史验收直接视为今天的能力。
 
-**Regra de precedência quando dois docs discordam:**
-`CLAUDE.md` (doutrina) > `docs/specs/` (contrato técnico) > `docs/prd/` (intenção) >
-`HANDOFF-*.md` (estado de sessão) > README. Se achou divergência, corrija a fonte
-de menor precedência e registre.
+## 从这里开始
 
----
-
-## 1. Comece por aqui
-
-| Doc | Para quê |
+| 文档 | 用途 |
 |---|---|
-| [`README.md`](../README.md) | 当前项目定位、状态与本地开发（仅简体中文） |
-| [`VISION.md`](../VISION.md) | Posicionamento, por que self-host, para quem |
-| [`ARCHITECTURE.md`](../ARCHITECTURE.md) | Arquitetura em 1 página |
-| [`AGENTS.md`](../AGENTS.md) | Contrato para agentes de código (qualquer ferramenta) |
-| [`CLAUDE.md`](../CLAUDE.md) | **Doutrina não-negociável.** Convenções, anti-patterns, Definition of Done |
-| [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Como contribuir |
-| [`CHANGELOG.md`](../CHANGELOG.md) | Mudanças por versão (SemVer). **Quem roda VPS lê antes de `update.sh`** — mudança que exige ação manual aparece sob "⚠️ Requer atenção" |
-| [`docs/current-state.md`](current-state.md) | **O que está pronto, incompleto e quebrado hoje** |
-| [`.agents/skills/`](../.agents/skills/pi-native-instalar/SKILL.md) | **Guias do assistente** — instalar, montar cliente por nicho, métricas, prompt, contribuir. Skills lidas por Claude Code, Codex, Cursor, OpenCode e Antigravity (não confundir com as *Skills* do agente de IA, na tela IA › Skills) |
+| [项目首页](../README.md) | 项目定位、开源来源、本仓库改动与演示入口 |
+| [本地安装](SETUP.md) | 完整服务所需依赖、环境配置和启动步骤 |
+| [架构概览](../ARCHITECTURE.md) | 应用、权限、数据与 Agent 执行边界 |
+| [项目愿景](../VISION.md) | 上游定位、自托管方式与发展方向 |
+| [贡献指南](../CONTRIBUTING.md) | 开发约定、验证命令与提交要求 |
+| [安全政策](../SECURITY.md) | 私下报告漏洞与保护敏感信息 |
+| [行为准则](../CODE_OF_CONDUCT.md) | 社区参与规则 |
+| [当前状态](current-state.md) | 实现状态记录，需要结合代码与日期复核 |
+| [版本历史](../CHANGELOG.md) | 升级前了解变更与操作要求 |
 
-## 2. Produto e intenção
+## 开发规范与架构
 
-| Doc | Conteúdo |
+文档冲突时按以下顺序处理：`CLAUDE.md` → 技术规范 → 产品需求 → 历史交接 → 项目首页。修改低优先级说明前先核对对应实现。
+
+| 入口 | 内容 |
 |---|---|
-| [`prd/00-prd-master.md`](prd/00-prd-master.md) | PRD mestre — visão, escopo MVP, KPIs, restrições |
-| [`prd/01-prd-platform-base.md`](prd/01-prd-platform-base.md) | Auth, tenancy, RBAC, framework LGPD |
-| [`prd/02-prd-customer-360.md`](prd/02-prd-customer-360.md) | Customer 360 + identity resolution determinística |
-| [`prd/03-prd-whatsapp-waha.md`](prd/03-prd-whatsapp-waha.md) | Canal WhatsApp, anti-banimento, janela 24h |
-| [`prd/04-prd-pipeline-attendance.md`](prd/04-prd-pipeline-attendance.md) | Kanban, atendimento, tickets, handoff |
-| [`prd/05-prd-ai-rag-handoff.md`](prd/05-prd-ai-rag-handoff.md) | IA conversacional, RAG por tenant, sentiment |
-| [`prd/06-prd-nuvemshop-lgpd.md`](prd/06-prd-nuvemshop-lgpd.md) | Integração Nuvemshop + webhooks LGPD |
-| [`business-rules/00-business-rules-catalog.md`](business-rules/00-business-rules-catalog.md) | **Catálogo de regras de negócio** — fonte da verdade fora do código |
-| [`presentation/pitch-deck.md`](presentation/pitch-deck.md) | Pitch |
+| [编码规则](../CLAUDE.md) | 开发约定、禁止模式与完成标准 |
+| [Agent 仓库指南](../AGENTS.md) | 目录、命令与认证入口 |
+| [系统连续性原则](doctrine/sistema-vivo.md) | 下一步、人工交接、日志与闭环要求 |
+| [原则实践手册](doctrine/sistema-vivo/README.md) | 各项原则的原因与应用方法 |
+| [交付与镜像规范](doctrine/packaging.md) | 自托管镜像、发布与升级约束 |
+| [渠道限制](doctrine/restricao-de-canal.md) | 对外渠道的授权边界 |
+| [对话与操作分离](doctrine/separacao-fala-e-operacao.md) | 客户沟通与内部执行的区分 |
+| [扩展规范](doctrine/extensoes.md) | 核心能力与可选扩展的边界 |
+| [架构图目录](architecture/README.md) | 组件、数据流与依赖图 |
+| [Agent 回合图](architecture/agent-turn.html) | 消息进入、工具执行、保护检查与发送 |
+| [威胁模型](threat-model.md) | 认证入口与攻击面分析 |
+| [设计系统](design-system/README.md) | 组件、色彩、排版、动效与交互规范 |
 
-## 3. Contrato técnico (specs)
+## 产品与技术契约
 
-Detalham schema SQL e payloads exatos. **Consulte antes de modelar qualquer coisa.**
+产品需求说明意图，技术规范说明数据和接口契约；两者都需要与当前代码核对。
 
-| Spec | Domínio |
+| 文档 | 主题 |
 |---|---|
-| [`specs/01`](specs/01-spec-platform-base.md) | Plataforma base — tenancy, RLS, RBAC, API, audit |
-| [`specs/02`](specs/02-spec-customer-360.md) | Customer 360 |
-| [`specs/03`](specs/03-spec-whatsapp-waha.md) | WAHA — fila outbound, warm-up, spinning, crons |
-| [`specs/04`](specs/04-spec-pipeline-attendance.md) | Pipeline e atendimento |
-| [`specs/05`](specs/05-spec-ai-rag-handoff.md) | IA, RAG, gatilhos de handoff |
-| [`specs/06`](specs/06-spec-nuvemshop-lgpd.md) | Nuvemshop + LGPD |
-| [`specs/07`](specs/07-spec-events-workers.md) | **`event_log`, workers, claim atômico, backoff/DLQ** |
-| [`specs/08`](specs/08-spec-deploy-observability.md) | Deploy e observabilidade |
-| [`specs/09`](specs/09-spec-frontend-backend-integration.md) | Integração front/back |
-| [`specs/10`](specs/10-spec-ai-agents-runtime.md) | Runtime dos AI Agents |
-| [`specs/11`](specs/11-spec-mcp-server-internal.md) | MCP server interno + catálogo de tools |
-| [`specs/12`](specs/12-spec-ai-agents-ui.md) | UI dos AI Agents |
-| [`specs/13`](specs/13-spec-governanca-atendimento.md) | Governança de atendimento (épico G1–G6) |
-| [`specs/14`](specs/14-contrato-governanca-agentes-externos.md) | Contrato para agentes de IA externos |
-| [`specs/15`](specs/15-spec-casos-humanos.md) | Casos humanos (IA delega a humano) |
-| [`specs/16`](specs/16-spec-tres-papeis-do-agente.md) | **Três papéis do agente** — Conversador / Operador / Segurança |
-| [`specs/17`](specs/17-spec-conversa-vira-lead.md) | **A conversa vira lead** — o elo entre atendimento e CRM |
-| [`specs/17`](specs/17-spec-indice-de-atrito.md) | **Índice de Atrito** — medir o propósito (menor atrito p/ os dois lados), não a atividade |
-| [`specs/18`](specs/18-spec-voice-calls-wacalls.md) | Chamada de voz WhatsApp (WaCalls) — rascunho, sem sub-PRD dedicado |
-| [`specs/extensoes-declarativas-v1.md`](specs/extensoes-declarativas-v1.md) | **Extensões declarativas v1** — pacote JSON estrito, catálogo admitido pelo dono da instalação, ativação por organização, guia no hub CRM |
-| [`specs/RECONCILIATION-LOG.md`](specs/RECONCILIATION-LOG.md) | Log de reconciliação entre specs |
+| [产品总需求](prd/00-prd-master.md) | 愿景、范围与指标 |
+| [业务规则目录](business-rules/00-business-rules-catalog.md) | 业务规则的统一入口 |
+| [平台基础](specs/01-spec-platform-base.md) | 租户、权限、API 与审计 |
+| [客户视图](specs/02-spec-customer-360.md) | 客户与身份识别 |
+| [WhatsApp 渠道](specs/03-spec-whatsapp-waha.md) | 消息收发、队列与渠道集成 |
+| [销售流程与接待](specs/04-spec-pipeline-attendance.md) | 看板、接待与工单 |
+| [AI 与知识检索](specs/05-spec-ai-rag-handoff.md) | RAG 与人工交接 |
+| [集成与隐私](specs/06-spec-nuvemshop-lgpd.md) | 商店集成与数据保护 |
+| [事件与 Worker](specs/07-spec-events-workers.md) | 领取任务、重试、退避与失败处理 |
+| [部署与可观测性](specs/08-spec-deploy-observability.md) | 部署、日志与监控 |
+| [前后端集成](specs/09-spec-frontend-backend-integration.md) | 界面与 API 对接 |
+| [Agent 运行时](specs/10-spec-ai-agents-runtime.md) | Agent 执行契约 |
+| [MCP 工具服务](specs/11-spec-mcp-server-internal.md) | 工具暴露与调用入口 |
+| [Agent 界面](specs/12-spec-ai-agents-ui.md) | 配置与操作界面 |
+| [外部 Agent 治理](specs/14-contrato-governanca-agentes-externos.md) | 外部调用的权限与治理 |
+| [人工处理事项](specs/15-spec-casos-humanos.md) | Agent 委派给人的工作 |
+| [声明式扩展](specs/extensoes-declarativas-v1.md) | 扩展包、目录与组织级启用 |
 
-## 4. Doutrina e arquitetura
+## 安装、运行与验证
 
-| Doc | Conteúdo |
+| 文档 | 内容 |
 |---|---|
-| [`doctrine/sistema-vivo.md`](doctrine/sistema-vivo.md) | **Doutrina do Sistema Vivo — a LEI.** 7 invariantes + regra do tempo + Living System Checklist (item 13 do DoD) |
-| [`doctrine/sistema-vivo/`](doctrine/sistema-vivo/README.md) | **Manual do Sistema Vivo** — 8 capítulos plugáveis (princípio universal + aplicação de referência). O *porquê* de cada invariante, e como adotar a doutrina em outro sistema |
-| [`doctrine/restricao-de-canal.md`](doctrine/restricao-de-canal.md) | Auto-restrição × hetero-restrição de canais externos; contrato de parâmetros derivado |
-| [`doctrine/separacao-fala-e-operacao.md`](doctrine/separacao-fala-e-operacao.md) | Vocabulário interno nunca vaza para o cliente |
-| [`doctrine/packaging.md`](doctrine/packaging.md) | **Doutrina de Packaging — a LEI.** 8 invariantes + política de canais + checklist de release (item 15 do DoD) |
-| [`doctrine/destrutivo-pede-confirmacao.md`](doctrine/destrutivo-pede-confirmacao.md) | Ação destrutiva pede confirmação que **nomeia o alvo** — dois botões gêmeos, o mesmo contrato |
-| [`doctrine/extensoes.md`](doctrine/extensoes.md) | **Doutrina de Extensões — a LEI.** Núcleo × extensão pela pergunta "com zero ativações a operação comum continua inteira?" + 13 não-negociáveis, com as políticas do DEC-004 (item 18 do DoD) |
-| [`specs/19`](specs/19-spec-console-de-agencia.md) | **Console de Agência** — operar N organizações clientes; unidade de cobrança decidida (retainer por cliente operado). Lei em [`doctrine/operacao-de-agentes.md`](doctrine/operacao-de-agentes.md) |
-| [`adr/0001-packaging-e-distribuicao.md`](adr/0001-packaging-e-distribuicao.md) | ADR do packaging: namespace, os 3 packages, e o que foi recusado |
-| [`adr/0002-tabelas-de-modulo-num-banco-so.md`](adr/0002-tabelas-de-modulo-num-banco-so.md) | **Aceita em 17/09/2026.** Tabelas de módulo opcional: um banco só, `public`, criadas por função provisionadora fixa quando o módulo é instalado |
-| [`architecture/agent-turn.html`](architecture/agent-turn.html) | Diagrama do turno do agente (inbound → guardrails → outbound) |
-| [`specs/pre-go-live-whatsapp.md`](specs/pre-go-live-whatsapp.md) | Modo de teste do WhatsApp por canal: lista de telefones, abertura ao público e compatibilidade com autorização por origem |
-| [`specs/19`](specs/19-spec-console-de-agencia.md) | **Console de Agência** — operar N organizações clientes; unidade de cobrança decidida (retainer por cliente operado). Lei em [`doctrine/operacao-de-agentes.md`](doctrine/operacao-de-agentes.md) |
-| [`architecture/pre-go-live-whatsapp.architecture.json`](architecture/pre-go-live-whatsapp.architecture.json) | Mapa do pré-go-live, configuração administrativa e gate compartilhado |
-| [`architecture/extensoes-declarativas.architecture.json`](architecture/extensoes-declarativas.architecture.json) | Mapa vivo das extensões declarativas — admissão, download, recibos, ativação por organização e guia no CRM |
-| [`architecture/teto-de-orcamento.architecture.json`](architecture/teto-de-orcamento.architecture.json) | **Mapa vivo do teto de gasto com IA** — quem alimenta o gate, o que a parada NÃO desfaz sozinha, e o laço de retorno (invariante 7) |
-| [`release/teto-de-orcamento.md`](release/teto-de-orcamento.md) | **Nota de release para quem opera uma VPS** — o que muda, o que fazer (nada), a troca de rótulo de R$ para US$ e como ligar a proteção |
-| [`research/architecture-diagrams.md`](research/architecture-diagrams.md) | Diagramas de arquitetura |
-| [`research/extensoes/`](research/extensoes/README.md) | Plataforma de extensões — arquitetura aprovada, bancada concluída e primeira integração provada em tela; acompanha PROG-021 |
-| [`research/reference-synthesis.md`](research/reference-synthesis.md) | Arquitetura herdada da referência WAHA |
-| [`research/followup-reference-mining.md`](research/followup-reference-mining.md) | Pesquisa do motor de follow-up |
-| [`threat-model.md`](threat-model.md) | **Superfície de ataque real do self-host** |
-| [`alertas-de-seguranca-triados.md`](alertas-de-seguranca-triados.md) | Razão de cada alerta **descartado** no painel do GitHub, e o que a varredura por classe achou que o scanner não vê |
+| [自托管说明](deploy-selfhost/README.md) | VPS 安装与运行 |
+| [HostGator 安装](deploy-hostgator/README.md) | 上游安装工具包 |
+| [部署清单](DEPLOY-CHECKLIST.md) | 部署前后检查 |
+| [升级说明](ATUALIZANDO.md) | 更新、恢复与健康检查 |
+| [生产部署手册](runbooks/deploy.md) | Compose 组合与反向代理 |
+| [CloudPanel 部署](runbooks/cloudpanel.md) | 已有代理环境的配置 |
+| [AI 凭证轮换](runbooks/ai-credentials-rotation.md) | 轮换步骤与限制 |
+| [用户旅程](testing/user-journey-map.md) | 端到端测试与页面验证范围 |
+| [可选 Agent 服务](integrations/agent-services.md) | Mem0、WeKnora、Langfuse 接入边界 |
+| [服务验证记录](testing/agent-services-2026-10-02.md) | 适配器证据及尚未完成的部署验证 |
+| [系统验收记录](testing/system-acceptance-2026-10-03.md) | 模型、记忆、知识与失败门禁的历史证据 |
 
-## 5. Design system
+## 助手指南与历史资料
 
-[`design-system/README.md`](design-system/README.md) é o ponto de entrada (v1.0, 5 escolhas
-visuais lockadas: paleta Sage, Atkinson Hyperlegible, densidade aerada, Phosphor duotone,
-IBM Plex Mono). Numerados `00`–`09`: overview, tokens, paleta, tipografia, densidade,
-iconografia, componentes, motion, voice & tone, **anti-patterns**.
-Fluxo de tela em `design-system/screen-flow/` (jornadas, clickflows, máquinas de estado,
-acessibilidade).
+助手操作指南位于 [内置技能目录](../.agents/skills/pi-native-contribuir/SKILL.md)，涵盖安装、配置客户、分析指标、调整提示词和贡献代码。它们是开发助手的指南，不是产品界面中的 Agent Skills。
 
-## 6. Operar e instalar
+交接记录与阶段报告统一放入 [交接目录](handoffs/README.md)。[任务故事](stories/)、[阶段计划](superpowers/) 和 [原始开发待办](../tasks/todo.md) 用于追溯决策，不能代替当前验收。
 
-| Doc | Conteúdo |
-|---|---|
-| [`SETUP.md`](SETUP.md) | Guia completo de env vars e setup local |
-| [`deploy-selfhost/README.md`](deploy-selfhost/README.md) | Self-host genérico |
-| [`deploy-hostgator/README.md`](deploy-hostgator/README.md) | VPS HostGator (`install.sh`, `backup.sh`, `reset-mfa.sh`) |
-| [`DEPLOY-CHECKLIST.md`](DEPLOY-CHECKLIST.md) | Checklist de deploy |
-| [`ATUALIZANDO.md`](ATUALIZANDO.md) | `update.sh`, `restore.sh`, `healthcheck.sh` |
-| [`runbooks/deploy.md`](runbooks/deploy.md) | **Deploy em produção — os dois `-f` do compose, verificação pós-deploy** |
-| [`runbooks/remediar-worker-congelado.md`](runbooks/remediar-worker-congelado.md) | **Incidente: o worker congelado** — diagnóstico (`diagnostico.sh`), impacto medido e as duas rotas de remediação. **Ainda não ensaiado** |
-| [`runbooks/ativar-packaging.md`](runbooks/ativar-packaging.md) | **Ativação da doutrina de packaging** — os 3 passos que não cabem num PR (pacote público, check obrigatório, primeira release) |
-| [`runbooks/custo-e-cota-do-supabase.md`](runbooks/custo-e-cota-do-supabase.md) | **“Meu Supabase estourou a cota”** — como medir a origem do consumo, os dois intervalos da fila e as duas tabelas que só crescem |
-| [`runbooks/waha-hostgator.md`](runbooks/waha-hostgator.md) | Runbook do WAHA em produção |
-| [`runbooks/cloudpanel.md`](runbooks/cloudpanel.md) | **VPS que já tem CloudPanel/Nginx nas portas 80/443** — o modo proxy externo do kit, o endereço fixo para o Nginx do host e o 403 do webhook global |
-| [`runbooks/ai-credentials-rotation.md`](runbooks/ai-credentials-rotation.md) | Rotação de credenciais de IA |
-| [`../SECURITY.md`](../SECURITY.md) | Política de reporte de vulnerabilidade |
-
-## 7. Testes e QA
-
-| Doc | Conteúdo |
-|---|---|
-| [`testing/user-journey-map.md`](testing/user-journey-map.md) | **Mapa de jornadas vivo** — casos, prioridade `[P0]`, achados. Atualizar sempre |
-| [`testing/HANDOFF-vps-qa.md`](testing/HANDOFF-vps-qa.md) | Receita do ambiente fresco estilo VPS |
-| [`harness-audit.md`](harness-audit.md) | **Auditoria do harness** — 20 itens + nível de maturidade |
-| [`audits/2026-08-14-afirmacoes-de-estado.md`](audits/2026-08-14-afirmacoes-de-estado.md) | **393 afirmações de estado medidas contra a fonte**, cada uma com o comando que a responde. É o retrato datado que sustenta as correções de doutrina desta data — releia a data antes de citar qualquer número dele |
-| [`audits/2026-08-14-alinhamento-stable-v1.3.0.md`](audits/2026-08-14-alinhamento-stable-v1.3.0.md) | O que a tag `v1.3.0` — que é o kit que roda na VPS, e não a `main` — de fato contém |
-| [`../tests/e2e/README.md`](../tests/e2e/README.md) | Como rodar os E2E |
-
-## 8. Execução — planos, épicos, handoffs
-
-Documentação de *processo*. Alta rotatividade; trate como estado, não como contrato.
-
-**目录约定（2026-10-05 起）：**交接记录与阶段报告统一放入
-[`handoffs/`](handoffs/README.md)，不再放在仓库根目录。所在目录不代表任务已经完成；
-请核对记录日期与当前代码，不将历史交接当作当前验收结论。
-
-- [`handoffs/`](handoffs/README.md) — 交接记录、阶段报告和历史归档
-- [`stories/`](stories/) — épicos e stories (`epics/MASTER.md` = plano por epic/wave)
-- [`superpowers/`](superpowers/) — `plans/` e `specs/` datados por onda, mais `handoffs/`
-- [`growth/`](growth/) — material de crescimento · [`brand/`](brand/) — marca · [`white-label.md`](white-label.md) — instalação com marca própria, também em [en](white-label.en.md) e [es](white-label.es.md) (traduções seladas pelo hash do original; ver `scripts/selar-traducao.ts`)
-- [`../plan/`](../plan/) — backlog do gov-loop (`features.json` 31/31, `phases.md`, `progress.md`)
-- [`../loop/`](../loop/) — máquina do gov-loop (`LOOP.md`, `CHECKPOINT.md`, `checkpoints/G1..G6-report.md` + `.approved`)
-- [`../tasks/todo.md`](../tasks/todo.md) — workflow de construção original (Fase 0 → PRD → specs)
-
-## 9. Grafo de conhecimento
-
-`graphify-out/` — grafo do repositório (7310 nós, 17705 arestas, 538 comunidades na última
-geração). Consulte via skill `graphify` antes de varrer código bruto. `GRAPH_REPORT.md` traz
-god nodes, hyperedges e comunidades. **Gerado — não editar.** ⚠️ Foi gerado contra uma árvore
-anterior à v1.0.0; regenere (`/graphify .`) antes de confiar em detalhe fino.
-
----
-
-## Lacunas conhecidas deste índice
-
-- `docs/vendaval-fusion-plan.md` e `docs/vendaval-vps-deploy-comandos.md` referem-se a uma
-  integração ("Vendaval") cujo status é **A CONFIRMAR** — o README **não a lista mais** em
-  "Próximo", apesar de o gatilho (`loop/checkpoints/G6.approved`) existir.
-- `docs/diagrams/` não tem `.md` e não foi inventariado. `docs/evidence/` é evidência visual
-  (18 PNGs), não documentação de leitura.
-- `docs/architecture/` reúne mapas JSON e seus renders disponíveis. Consulte o
-  [catálogo de mapas](architecture/README.md) e os arquivos do diretório; a contagem
-  muda com as entregas. A doutrina exige representar peças novas e suas relações,
-  e `tests/unit/mapas-de-arquitetura.test.ts` verifica a forma e os kinds do runtime.
-  Esse gate não comprova, sozinho, que toda funcionalidade tem um mapa.
-- `docs/growth/` (3 docs) e `docs/brand/` (1) não foram lidos em detalhe — classificados por
-  nome de pasta, portanto **INFERIDO**.
-
-- [Acompanhamento administrativo por sessão](support-sessions.md) — autoridade, somente leitura, saída e contratos OAuth.
-
-### Optional Agent services
-
-- [Mem0 customer memory, WeKnora company Wiki, Langfuse trace/Eval adapters](integrations/agent-services.md)
-- [Adapter verification and unmeasured deployment gates](testing/agent-services-2026-10-02.md)
-- [系统全面验收：真实模型、多 Agent、Memory/Wiki/Langfuse 与失败门禁](testing/system-acceptance-2026-10-03.md)
+`graphify-out/` 为本地生成的知识图谱，可能不存在或已经过期。查看源码和已提交文档不需要先生成它。

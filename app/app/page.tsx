@@ -1,4 +1,6 @@
 import { requireAuth, resolveActiveOrg } from "@/lib/auth/server";
+import { redirect } from "next/navigation";
+import { homeDaInterface, lerInterface } from "@/lib/navigation/interface";
 import { roleAtLeast } from "@/lib/auth/types";
 import { readHomeDashboard } from "@/lib/home/read-home-dashboard";
 import { HomeDashboard } from "./_components/HomeDashboard";
@@ -11,6 +13,13 @@ export default async function AppHome() {
   const org = await resolveActiveOrg(user);
   if (!org) {
     return <section className="mx-auto max-w-3xl rounded-lg border bg-card p-8"><h1 className="text-2xl font-semibold">暂时没有可用的工作区</h1><p className="mt-2 text-sm text-muted-foreground">请联系组织管理员确认你的成员权限。</p></section>;
+  }
+
+  // An explicit interface selection still determines the first working page.
+  // Keep the dashboard for the full interface or an explicitly selected home.
+  const { settings } = lerInterface(org.interface_settings);
+  if (settings.destinos && !settings.destinos.includes("/app")) {
+    redirect(homeDaInterface(settings, user.is_platform_admin && !user.support, org.role));
   }
 
   const result = await readHomeDashboard(org.orgId, roleAtLeast(org.role, "manager"))

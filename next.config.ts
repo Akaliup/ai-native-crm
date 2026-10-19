@@ -8,6 +8,9 @@ import type { NextConfig } from "next";
  *  - Initial bundle /app/inbox < 250KB gzipped
  */
 const nextConfig: NextConfig = {
+  // Pi uses dynamic imports of Node builtins. Bundling rewrites those into
+  // unresolved expressions; keep the SDK on Node's native ESM loader.
+  serverExternalPackages: ["@earendil-works/pi-ai", "@earendil-works/pi-agent-core"],
   // Self-host: gera .next/standalone pro container Docker (node server.js) — é
   // o que o estágio `runner` do Dockerfile copia, então é o modo de build deste
   // repositório. O ramo de `process.env.VERCEL` é resíduo defensivo, não um modo
@@ -51,6 +54,9 @@ const nextConfig: NextConfig = {
    */
   outputFileTracingIncludes: {
     "/**": [
+      // Lazy provider modules and model data must also reach the standalone image.
+      "./node_modules/.pnpm/@earendil-works+pi-ai@*/node_modules/@earendil-works/pi-ai/**",
+      "./node_modules/.pnpm/@earendil-works+pi-agent-core@*/node_modules/@earendil-works/pi-agent-core/**",
       "./node_modules/.pnpm/@swc+helpers@*/node_modules/@swc/helpers/**",
       // Mesmo defeito do @swc/helpers acima: js-binding.js do @napi-rs/canvas
       // resolve o binário nativo com `require()` computado em runtime

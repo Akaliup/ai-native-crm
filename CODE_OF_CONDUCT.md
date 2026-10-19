@@ -1,41 +1,32 @@
-# Código de Conduta — Contributor Covenant
+# 社区行为准则
 
-## Nosso compromisso
+本准则改编自 Contributor Covenant 2.1，保留其开放、包容和尊重他人的原则。
 
-Nós, como membros, contribuidores e líderes, nos comprometemos a fazer da participação em nossa comunidade uma experiência livre de assédio para todos, independentemente de idade, corpo, deficiência visível ou invisível, etnia, características sexuais, identidade e expressão de gênero, nível de experiência, educação, status socioeconômico, nacionalidade, aparência pessoal, raça, religião ou identidade e orientação sexual.
+## 我们的承诺
 
-Comprometemo-nos a agir e interagir de maneiras que contribuam para uma comunidade aberta, acolhedora, diversa, inclusiva e saudável.
+社区成员、贡献者和维护者应共同提供无骚扰的参与环境，不因年龄、体型、可见或不可见的残障、族裔、性特征、性别认同或表达、经验、教育、社会经济地位、国籍、外貌、种族、宗教或性取向区别对待。
 
-## Nossos padrões
+## 鼓励的行为
 
-Exemplos de comportamento que contribuem para um ambiente positivo:
+- 尊重不同意见、背景和经历。
+- 友善地提出、接受可操作的反馈。
+- 对错误负责，向受影响者致歉并改进。
+- 关注个人与整个社区的共同利益。
 
-- Demonstrar empatia e bondade com outras pessoas
-- Respeitar opiniões, pontos de vista e experiências divergentes
-- Dar e receber feedback construtivo com elegância
-- Assumir responsabilidade, pedir desculpas a quem for afetado por nossos erros e aprender com a experiência
-- Focar no que é melhor não só para nós individualmente, mas para a comunidade como um todo
+## 不接受的行为
 
-Exemplos de comportamento inaceitável:
+- 性化语言或图像，以及不受欢迎的性关注。
+- 挑衅、羞辱、人身攻击或政治攻击。
+- 公开或私下骚扰。
+- 未经明确许可公开他人的地址、邮箱等私人信息。
+- 其他不适合专业协作环境的行为。
 
-- Uso de linguagem ou imagens sexualizadas e atenção ou avanços sexuais de qualquer tipo
-- Trolling, comentários insultuosos ou depreciativos e ataques pessoais ou políticos
-- Assédio público ou privado
-- Publicar informações privadas de terceiros, como endereço físico ou de e-mail, sem permissão explícita
-- Outras condutas que poderiam razoavelmente ser consideradas inadequadas em ambiente profissional
+## 执行与适用范围
 
-## Responsabilidades de aplicação
+维护者负责说明标准，并对不当、威胁、冒犯或有害行为采取公平的纠正措施。准则适用于 issues、PR、discussions 等社区空间，也适用于代表社区参与公共活动的场景。
 
-Os mantenedores do projeto são responsáveis por esclarecer e aplicar nossos padrões de comportamento aceitável e tomarão ações corretivas apropriadas e justas em resposta a qualquer comportamento que considerem inadequado, ameaçador, ofensivo ou nocivo.
+通过仓库的私密渠道报告问题。处理投诉时，应尊重报告者和相关人员的隐私与安全。
 
-## Escopo
+## 来源
 
-Este Código de Conduta se aplica a todos os espaços da comunidade (issues, PRs, discussions) e também quando um indivíduo representa oficialmente a comunidade em espaços públicos.
-
-## Aplicação
-
-Casos de comportamento abusivo, de assédio ou de outra forma inaceitável devem ser reportados pelos canais privados do repositório. Todas as reclamações serão analisadas respeitando a privacidade e a segurança de quem reportar.
-
-## Atribuição
-
-Este Código de Conduta é adaptado do [Contributor Covenant](https://www.contributor-covenant.org), versão 2.1, disponível em <https://www.contributor-covenant.org/version/2/1/code_of_conduct.html>.
+[Contributor Covenant](https://www.contributor-covenant.org)，[2.1 版原文](https://www.contributor-covenant.org/version/2/1/code_of_conduct.html)。

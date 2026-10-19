@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * A CHAMADA DE VOZ NUM PRIMEIRO DEPLOY — provada pela tela, sem o serviço instalado.
  *
@@ -97,7 +98,7 @@ async function entrarComoAdmin(page: Page): Promise<void> {
     await page.locator('input[aria-label="Dígito 1"]').click();
     await page.keyboard.type(generateTotp(segredo as string), { delay: 40 });
     try {
-      await page.waitForURL(/\/app\//, { timeout: 8_000 });
+      await page.waitForURL(isAppUrl, { timeout: 8_000 });
       return;
     } catch {
       await page.waitForTimeout(msUntilNextTotpWindow() + 200);

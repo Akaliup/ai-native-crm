@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * G3-03 — filtro por responsável no board (deep-linkável via query param).
  *
@@ -49,7 +50,7 @@ async function login(page: Page, email: string): Promise<void> {
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(creds.password);
   await page.getByRole("button", { name: /entrar/i }).click();
-  await page.waitForURL(/\/app\//);
+  await page.waitForURL(isAppUrl);
 }
 
 test("filtro por responsável reflete na URL e esconde leads com dono", async ({ page }) => {

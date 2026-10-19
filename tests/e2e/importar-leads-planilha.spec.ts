@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * IMPORTAR LEADS DE UMA PLANILHA — provado PELA TELA, com o form real.
  *
@@ -77,7 +78,7 @@ async function login(page: Page, email: string): Promise<void> {
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(creds.password);
   await page.getByRole("button", { name: /entrar/i }).click();
-  await page.waitForURL(/\/app\//);
+  await page.waitForURL(isAppUrl);
 }
 
 test("importa uma planilha sem escolher etapa (não há esse seletor) e o negócio nasce na primeira etapa do funil", async ({

@@ -45,10 +45,24 @@ function receitasPublicadas(): string[] {
  */
 function receitasConstruidasEmPr(): string[] {
   const semMatriz = yml.replace(/matrix:\s*\n\s*include:\s*\n(?:\s+-?\s+\w[^\n]*\n)+/g, "");
-  return [...semMatriz.matchAll(/^\s+file:\s*(Dockerfile\S*)\s*$/gm)].flatMap((m) => (m[1] ? [m[1]] : []));
+  return [...semMatriz.matchAll(/^\s+file:\s*(Dockerfile\S*)\s*$/gm)].flatMap((m) =>
+    m[1] ? [m[1]] : [],
+  );
 }
 
 describe("toda imagem publicada é construída em PR", () => {
+  it("as duas sondas do app executam a imagem realmente construída", () => {
+    const appJob = yml.split("\n  imagem-do-app-sobe:")[1]?.split("\n  imagens-de-fundo-sobem:")[0];
+    expect(appJob).toBeDefined();
+    const tag = appJob?.match(/^\s+tags:\s*(\S+)\s*$/m)?.[1];
+    expect(tag).toBeTruthy();
+    const sondas = [
+      ...(appJob ?? "").matchAll(/^\s+(pi-native[\w-]*:pr)(?:[ \t]+node[^\r\n]*)?[ \t]*\r?$/gm),
+    ].map((match) => match[1]);
+    expect(sondas).toHaveLength(2);
+    expect(sondas.every((sonda) => sonda === tag)).toBe(true);
+  });
+
   it("o instrumento acha o que precisa achar (guarda de vacuidade)", () => {
     // Sem isto, um regex que parou de casar devolveria dois conjuntos vazios e
     // a cerca ficaria verde sem medir nada.
@@ -77,7 +91,9 @@ describe("toda imagem publicada é construída em PR", () => {
     );
     const matriz = sabotado.match(/matrix:\s*\n\s*include:\s*\n((?:\s+-?\s+\w[^\n]*\n)+)/);
     const bloco = matriz?.[1] ?? "";
-    const publicadas = [...bloco.matchAll(/dockerfile:\s*(\S+)/g)].flatMap((m) => (m[1] ? [m[1]] : []));
+    const publicadas = [...bloco.matchAll(/dockerfile:\s*(\S+)/g)].flatMap((m) =>
+      m[1] ? [m[1]] : [],
+    );
     const emPr = new Set(receitasConstruidasEmPr());
 
     expect(publicadas.filter((r) => !emPr.has(r))).toContain("Dockerfile.inventada");

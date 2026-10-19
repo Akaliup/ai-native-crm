@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * Task 7.1 — fila unificada (enrollments + promessas) + cancelar + aba.
  *
@@ -62,7 +63,7 @@ async function login(page: Page, email: string): Promise<void> {
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(creds.password);
   await page.getByRole("button", { name: /entrar/i }).click();
-  await page.waitForURL(/\/app\//);
+  await page.waitForURL(isAppUrl);
 }
 
 /** Troca de sessão dentro do MESMO teste: limpa cookies antes de logar como outro user. */

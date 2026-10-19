@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * J20.12 — O FOLLOW-UP AUTOMÁTICO RESPEITA O GATE.
  *
@@ -78,7 +79,7 @@ async function login(page: Page, email: string): Promise<void> {
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(creds.password);
   await page.getByRole("button", { name: /entrar/i }).click();
-  await page.waitForURL(/\/app\//);
+  await page.waitForURL(isAppUrl);
 }
 
 /** Grafo mínimo publicável: trigger → wait(5min) → ação(ai_message) → fim.

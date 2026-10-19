@@ -1,34 +1,23 @@
-# Política de Segurança
+# 安全政策
 
-## Versões suportadas
+## 支持范围
 
-O Pi Native CRM é distribuído em rolling release a partir da branch `main`. Correções de segurança são aplicadas apenas à versão mais recente — mantenha sua instalação atualizada (`bash hostgator-setup-kit/update.sh` em self-host).
+项目以 main 的最新版本持续迭代。上游安全修复优先面向最新版本，自托管安装应按升级说明更新；不能把一个历史快照视为仍受维护的版本。
 
-| Versão | Suportada |
-| --- | --- |
-| `main` (mais recente) | ✅ |
-| Snapshots antigos | ❌ |
+## 私下报告漏洞
 
-## Reportando uma vulnerabilidade
+不要在公开 issue 中披露可利用的漏洞、密钥或真实客户数据。
 
-**Não abra issue pública para vulnerabilidades.**
+涉及上游基座的问题，可使用[上游 GitHub 私密漏洞报告](https://github.com/helsome/AiNativeCrm/security/advisories/new)。本仓库的独立变更，请通过仓库提供的私密安全渠道联系维护者；若未启用该功能，不要转而公开敏感细节。
 
-Use o [relato privado de vulnerabilidades do GitHub](https://github.com/helsome/AiNativeCrm/security/advisories/new) — o relato chega só aos mantenedores, e o histórico fica auditável.
+报告应包含受影响版本、脱敏复现步骤、预期与实际行为、影响范围和可用的修复建议。上游原政策的响应目标为 7 天确认、30 天评估，并按意愿署名；这不构成本二次开发仓库的独立服务承诺。
 
-O que esperar:
+## 重点问题
 
-- **Confirmação de recebimento** em até 7 dias.
-- **Avaliação e resposta** em até 30 dias, com plano de correção quando confirmada.
-- **Crédito** no advisory publicado, se você quiser.
+- RLS 或 `organization_id` 过滤绕过导致跨组织数据泄漏。
+- 身份验证、MFA、角色或平台管理员权限绕过。
+- 联系人、聊天、媒体和其他个人数据泄漏。
+- Webhook 或 `/api/v1` 外部输入注入。
+- API key、Bearer token、会话 cookie 或其他凭据暴露。
 
-## Escopo
-
-Interessam especialmente relatos sobre:
-
-- Vazamento entre tenants (bypass de RLS ou de filtro `organization_id`)
-- Bypass de autenticação/RBAC (roles `viewer`/`agent`/`manager`/`admin`, super-admin)
-- Exposição de dados pessoais (LGPD): contatos, conversas, mídia do WhatsApp
-- Injeção via payloads de webhook (WAHA, Nuvemshop) ou da API `/api/v1`
-- Vazamento de segredos (API keys, tokens bearer, cookies de sessão)
-
-Instalações self-host são responsabilidade de quem hospeda; problemas de configuração do servidor (firewall, TLS do VPS etc.) estão fora do escopo do projeto, mas melhorias no kit de instalação são bem-vindas como issue normal.
+自托管服务器的防火墙、TLS 和操作系统配置由安装者负责。不会泄露敏感细节的安装改进，可以通过普通 issue 或 PR 提出。

@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * QA VISUAL DO LOTE 12 — #942, a ferramenta que CONFERE e MARCA na mesma chamada.
  *
@@ -46,7 +47,7 @@ async function loginComTotp(
     await digito1.click({ timeout: 15_000 });
     await page.keyboard.type(generateTotp(segredo), { delay: 40 });
     const desfecho = await Promise.race([
-      page.waitForURL(/\/app\//, { timeout: 60_000 }).then(() => "entrou" as const, () => "nada" as const),
+      page.waitForURL(isAppUrl, { timeout: 60_000 }).then(() => "entrou" as const, () => "nada" as const),
       recusa.waitFor({ state: "visible", timeout: 60_000 }).then(() => "recusado" as const, () => "nada" as const),
     ]);
     if (desfecho === "entrou") return;

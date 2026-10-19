@@ -1,3 +1,4 @@
+import { isAppUrl } from "./utils/app-url";
 /**
  * O LOGO SUBIDO PELA TELA CHEGA À TELA — nas duas camadas, e sem uma vazar na outra.
  *
@@ -223,7 +224,7 @@ async function loginComTotp(page: Page, email: string, secret: string): Promise<
     await page.keyboard.type(generateTotp(secret), { delay: 40 });
 
     const desfecho = await Promise.race([
-      page.waitForURL(/\/app\//, { timeout: 60_000 }).then(
+      page.waitForURL(isAppUrl, { timeout: 60_000 }).then(
         () => "entrou" as const,
         () => "sem-desfecho" as const,
       ),
@@ -359,7 +360,7 @@ async function medirImagem(img: Locator): Promise<LogoNaTela> {
  * O (2) é o provável, porque para o (1) acontecer as DUAS camadas de marca teriam
  * de estar vazias — e a da instalação não foi tocada pelo caso que falhou.
  *
- * Agora a casca é provada ANTES: `toHaveURL(/\/app\//)` separa "redirecionou" de
+ * Agora a casca é provada ANTES: `toHaveURL(isAppUrl)` separa "redirecionou" de
  * "a barra perdeu o logo" a custo zero, e a espera pelo `<aside>` separa o (3).
  * Nenhuma asserção ficou mais frouxa: o caso continua vermelho se o logo sumir
  * de verdade — só passa a dizer QUAL das coisas aconteceu.
